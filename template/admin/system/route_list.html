@@ -1,0 +1,58 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="admin-main layui-anim layui-anim-upbit">
+        <table class="layui-table"
+               lay-data="{height: 'full-100', cellMinWidth: 80,page: false,url:'{% url "route_set" %}'}">
+            <thead>
+            <tr>
+                <th lay-data="{field:'route_name',}">路由名称</th>
+                <th lay-data="{field:'route_alias_name'}">路由别名</th>
+                <th lay-data="{field:'msg'}">对比信息</th>
+            </tr>
+            </thead>
+        </table>
+        <div style="text-align: right;">
+            <button class="layui-btn add-route-btn">添加路由</button>&nbsp;&nbsp;
+            <button class="layui-btn layui-btn-danger merge-route-btn">合并路由</button>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['table', 'jquery'], function () {
+            var table = layui.table,
+                $ = layui.jquery;
+
+            $('.add-route-btn').click(function (result) {
+                $.post("{% url 'merge_route' %}", {'handle_type': 'add'}, function (result) {
+                    if (result.code === 1) {
+                        layer.alert(result.msg, function () {
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.alert(result.msg)
+                    }
+                });
+            });
+
+            $('.merge-route-btn').click(function (result) {
+                var index = layer.confirm('注意：合并路由必须在所有路由都整理完整后进行合并，会将系统中不存在的路由进行删除,确认合并？', {
+                    btn: ['修改', '取消'] //按钮
+                }, function () {
+                    layer.close(index);
+                    layer.prompt({title: '请输入合并口令，并确认', formType: 1}, function (pass, index) {
+                        $.post("{% url 'merge_route' %}", {'handle_type': 'merge', password: pass}, function (result) {
+                            if (result.code === 1) {
+                                layer.alert(result.msg, function () {
+                                    window.location.reload();
+                                });
+                            } else {
+                                layer.alert(result.msg)
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

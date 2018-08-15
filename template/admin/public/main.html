@@ -1,0 +1,74 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="admin-main layui-anim layui-anim-upbit">
+        <div class="table-responsive">
+            <blockquote class="layui-elem-quote layui-text">系统信息</blockquote>
+            <table class="layui-table" lay-even lay-skin="line">
+                <colgroup>
+                    <col width="20%">
+                    <col>
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td>网站域名</td>
+                    <td>{{ config.host }}</td>
+                </tr>
+                <tr>
+                    <td>网站目录</td>
+                    <td>{{ config.document_root }}</td>
+                </tr>
+                <tr>
+                    <td>服务器操作系统</td>
+                    <td>{{ config.server_os }}</td>
+                </tr>
+                <tr>
+                    <td>服务器端口</td>
+                    <td>{{ config.server_port }}</td>
+                </tr>
+                <tr>
+                    <td>服务器IP</td>
+                    <td>{{ config.server_ip }}</td>
+                </tr>
+                <tr>
+                    <td>WEB运行环境</td>
+                    <td>{{ config.server_soft }}</td>
+                </tr>
+                <tr>
+                    <td>运行Python版本</td>
+                    <td>{{ config.python_version }}</td>
+                </tr>
+                <tr>
+                    <td>运行Django版本</td>
+                    <td>{{ config.django_version }}</td>
+                </tr>
+                <tr>
+                    <td>PyCMF版本</td>
+                    <td>1.0.0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-responsive" style="margin-top: 15px;">
+            <blockquote class="layui-elem-quote layui-text">发起团队</blockquote>
+            <table class="layui-table" lay-even lay-skin="line">
+                <colgroup>
+                    <col width="20%">
+                    <col>
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td>团队成员</td>
+                    <td>
+                        <a href="#" class="layui-btn layui-btn-primary layui-btn-xs">某某1</a><a href="#"
+                                                                                               class="layui-btn layui-btn-primary layui-btn-xs">某某2</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>联系方式</td>
+                    <td>xxxxxx@qq.com</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'admin/admin_base.html' %}
+{% block extrastyle %}
+    <style type="text/css">
+        .layui-form-label {
+            width: 150px;
+        }
+
+        .layui-input-block {
+            margin-left: 180px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="admin-main layui-anim layui-anim-upbit">
+        <form class="layui-form" action="">
+            <div class="layui-tab" lay-filter="test">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="11">网站设置</li>
+                    <li lay-id="22">邮箱设置</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">网站标题</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="site_title" lay-verify="site_title" autocomplete="off"
+                                       placeholder="请输入标题"
+                                       class="layui-input" value="{{ site_config.site_title }}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                            <label class="layui-form-label">网站描述</label>
+                            <div class="layui-input-block">
+                    <textarea name="site_description" placeholder="请输入内容" class="layui-textarea"
+                              lay-verify="site_description">{{ site_config.site_description }}</textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">开关站点</label>
+                            <div class="layui-input-block">
+                                <input type="checkbox" {% if site_config.site_status == 'on' %}checked{% endif %}
+                                       name="site_status"
+                                       lay-skin="switch" lay-filter="switchTest"
+                                       lay-text="开启|关闭">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 邮箱部分 -->
+                    <div class="layui-tab-item">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">发件人</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="mail_sender" lay-verify="mail_sender" autocomplete="off"
+                                       placeholder="请输入发件人"
+                                       class="layui-input" value="{{ site_config.mail_sender }}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">邮箱地址</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="mail_address" lay-verify="mail_address" autocomplete="off"
+                                       placeholder="请输入邮箱地址"
+                                       class="layui-input" value="{{ site_config.mail_address }}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">SMTP服务器</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="mail_smtp" lay-verify="mail_smtp" autocomplete="off"
+                                       placeholder="请输入SMTP服务器"
+                                       class="layui-input" value="{{ site_config.mail_smtp }}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">连接方式</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="mail_smtpsecure" value="ssl" title="ssl" {% if site_config.mail_smtpsecure == 'ssl' %}checked=""{% endif %}>
+                                <input type="radio" name="mail_smtpsecure" value="tls" title="tls" {% if site_config.mail_smtpsecure == 'tls' %}checked=""{% endif %}>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">SMTP服务器端口</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="mail_smtpport" lay-verify="mail_smtpport"
+                                       autocomplete="off"
+                                       placeholder="请输入SMTP服务器端口"
+                                       class="layui-input" value="{{ site_config.mail_smtpport }}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">发件箱帐号</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="mail_loginname" lay-verify="mail_loginname"
+                                       autocomplete="off"
+                                       placeholder="请输入发件箱帐号"
+                                       class="layui-input" value="{{ site_config.mail_loginname }}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">发件箱密码</label>
+                            <div class="layui-input-block">
+                                <input type="password" name="mail_password" lay-verify="mail_password"
+                                       autocomplete="off"
+                                       placeholder="请输入发件箱密码"
+                                       class="layui-input" value="{{ site_config.mail_password }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['form', 'layedit', 'laydate', 'jquery', 'element'], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , layedit = layui.layedit
+                , laydate = layui.laydate
+                , $ = layui.jquery
+                , element = layui.element;
+
+
+            //自定义验证规则
+            form.verify({
+                site_title: function (value) {
+                    if (value.length < 5) {
+                        return '标题至少得5个字符啊';
+                    }
+                },
+                site_description: function (value) {
+                    if (value.length < 5) {
+                        return '描述至少得5个字符啊';
+                    }
+                }
+            });
+
+            //监听指定开关
+            form.on('switch(switchTest)', function (data) {
+                if (this.checked === false) {
+                    layer.tips('温馨提示：站点关闭后将无法访问', data.othis)
+                }
+            });
+
+            //监听提交
+            form.on('submit(demo1)', function (data) {
+                if (!data.field.hasOwnProperty('site_status')) {
+                    data.field.site_status = 'off';
+                }
+                $.post("{% url 'set_config' %}", data.field, function (result) {
+                    if (result.code !== 1) {
+                        layer.msg(result.msg)
+                    } else {
+                        window.location.reload();
+                    }
+                });
+                return false;
+            });
+            return false;
+        });
+    </script>
+{% endblock %}

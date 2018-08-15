@@ -1,0 +1,100 @@
+{% extends 'admin/admin_base.html' %}
+{% block extrastyle %}
+    <style type="text/css">
+        .layui-table td {
+            padding: 3px 10px;
+        }
+
+        .sort-input {
+            height: 28px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="admin-main layui-anim layui-anim-upbit">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this"><a href="{% url 'menu_list' %}">菜单列表</a></li>
+                <li><a href="{% url 'menu_add' %}">添加菜单</a></li>
+            </ul>
+        </div>
+        <table class="layui-table">
+            <thead>
+            <tr>
+                <th width="50px">排序</th>
+                <th>菜单ID</th>
+                <th>菜单名称</th>
+                <th>菜单描述</th>
+                <th>菜单状态</th>
+                <th>创建时间</th>
+                <th>修改时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in menu_list %}
+                <tr>
+                    <td>
+                        <input type="text" value="{{ row.sort }}" readonly class="layui-input sort-input"
+                               style="width: 50px;border-radius: 5px;{% if row.m_pid != 0 %}margin-left:20px;{% endif %}">
+                    </td>
+                    <td width="100px">
+                        {{ row.menu_id }}
+                    </td>
+                    <td width="200px">
+                        {% if row.m_pid != 0 %}
+                            ├─
+                        {% endif %}
+                        {{ row.menu_name }}
+                    </td>
+                    <td>{{ row.menu_description }}</td>
+                    <td width="100px">
+                        {% if row.menu_status == 1 %}
+                            <span style="color: #F581B1;">禁用</span>
+                        {% else %}
+                            正常
+                        {% endif %}
+                    </td>
+                    <td width="150px">{{ row.create_time|date:"Y-m-d H:i:s" }}</td>
+                    <td width="150px">{{ row.update_time|date:"Y-m-d H:i:s" }}</td>
+                    <td width="170px">
+                        {% if row.menu_type == 1 %}
+                            <a class="layui-btn layui-btn-xs layui-btn-normal"
+                               href="{% url 'menu_add' %}?pid={{ row.menu_id }}">添加子菜单</a>
+                        {% else %}
+                            <a class="layui-btn layui-btn-xs layui-btn-disabled" href="javascript:void(0);">添加子菜单</a>
+                        {% endif %}
+                        <a class="layui-btn layui-btn-xs" href="{% url 'menu_edit' %}?menu_id={{ row.menu_id }}">编辑</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs menu-del"
+                           data-value="{{ row.menu_id }}">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['table', 'jquery'], function () {
+            var table = layui.table,
+                $ = layui.jquery;
+
+            $('.menu-del').click(function (result) {
+                var menu_id = $(this).attr('data-value');
+                layer.confirm('确认要删除该菜单吗？', function () {
+                    $.post("{% url 'menu_delete' %}", {menu_id: menu_id}, function (result) {
+                        if (result.code === 1) {
+                            layer.alert(result.msg, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(result.msg)
+                        }
+                    });
+                });
+
+            });
+        });
+    </script>
+{% endblock %}

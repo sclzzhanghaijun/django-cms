@@ -1,0 +1,162 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'home/webuploader/webuploader.css' %}">
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <h2 class="top_item" topic_id="{{data.topic_id}}">{{data.topic_title}}</h2>
+            <div class="article-infobox">
+                <span>{{data.create_time|date:'Y-m-d H:m:s' }}<a href="#"  style="margin-left: 5px">{{data.username}}</a></span>
+                <span>
+                    <a href="#"><i class="fa fa-eye"></i><span style="color: #FEA710">{{data.view_num}}</span></a>
+                    <a href="#"><i class="fa fa-star-o"></i></a>
+                </span>
+            </div>
+            <hr>
+            <div id="article_content">{{data.content|safe}}
+            </div>
+            <br>
+            <h3>评论</h3>
+        </div>
+    </div>
+
+    <div class="comment-area" id="comments">
+        <div class="form-box">
+            <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="topic_id" value="{{ data.topic_id }}" class="topic_id">
+                <input type="hidden" class="reply_comment_id" name="reply_comment_id">
+
+                <div class="form-group">
+
+                    <div class="col-sm-10">
+                        <script id="container" name="comment_content" type="text/plain"></script>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-10">
+                        <input type="hidden" name="status" value="0">
+                        <button type="button" class="btn btn-primary" id="sumit">发表评论</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="comments">
+        <nav class="page-nav">
+            <ul class="pagination">
+                {{ pager_str|safe }}
+            </ul>
+        </nav>
+    </div>
+
+</div>
+
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript" src="{% static 'ueditor/ueditor.config.js' %}"></script>
+<script type="text/javascript" src="{% static 'ueditor/ueditor.all.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'home/webuploader/webuploader.min.js' %}"></script>
+<script>
+    UE.getEditor('container', {
+        initialFrameHeight: 300,
+        zIndex: 0,
+        toolbars: [
+            ['fullscreen', 'source', 'undo', 'redo', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', 'simpleupload']]
+    });
+
+    $.ajax({
+        type: "POST",
+        async: false,
+        url: '{% url "home.topic_comment_list" %}',
+        data: {
+            'topic_id': $(".top_item").attr('topic_id'),
+            'page': 1
+        },
+        success: function (data) {
+            var html = '';
+            var datalist = data.data;
+            $.each(datalist, function (idx, item) {
+                var comment_content = '';
+                if (item.reply_comment_info.length === 0) {
+                    comment_content = item.comment_content;
+                } else {
+                    comment_content = '@' + item.reply_comment_info.username + ':' + item.comment_content;
+                }
+                html += '<hr style="margin: 5px 0;">'
+                    + '<div class="comment" id=' + item.topic_comment_id + '>'
+                    + '<div>'
+                    + '<a class="pull-left" href="#" style="margin-right: 10px;"><img class="media-object avatar" class="headicon"/></a>'
+                    + '<div><a href="#">' + item.username + '</a>' + ':' + '<br>' + '<span class="time">' + item.created_time + '</span>' + '</div>'
+                    + '<div class="clearfix"></div>'
+                    + '</div>'
+                    + '<div class="comment-body">' + '<div class="comment-content">' + comment_content + '</div>' + '<div class="pull-right  reply-comment" style="padding: 10px 0;"><i class="fa fa-comment"></i>回复</a>'
+                    + '</div> '
+                    + '<div class="comment-reply-submit" style="display: none;">'
+                    + '<div class="comment-reply-box">' + '<input type="text" class="textbox form-control" placeholder="@">'
+                    + '<button class="btn pull-right comment-submit-btn" style="margin-top: 5px;" >回复</button>' + '</div></div>'
+                    + '</div>'
+
+                    + '<div class="clearfix"></div>'
+                    + '</div>'
+            });
+            $(".comments").html(html)
+        },
+        error: function () {
+            alert("服务器错误");
+        }
+    });
+
+
+    $("#sumit").on('click', function () {
+        $(".reply_comment_id").val(0);
+        var $from = $("form").serialize();
+
+        topic_comment_publish($from);
+    });
+
+    $(".reply-comment").on('click', function () {
+        $(this).css("display", "none");
+        $(this).parent('.comment-body').find('.comment-reply-submit').css("display", "block");
+    });
+
+    $(".comment-submit-btn").on('click', function () {
+        $(this).css("display", "none");
+        $(this).parent('.comment-body').find('.comment-reply-submit').css("display", "block");
+
+        $('#container').val($('.textbox').val());
+        var param = {
+            'topic_id': $('.topic_id').val(),
+            'reply_comment_id': $(this).parent().parent().parent().parent('.comment').attr('id'),
+            'comment_content': $(this).parent('.comment-reply-box').find('.textbox').val()
+        };
+        topic_comment_publish(param);
+    });
+
+
+    function topic_comment_publish(data) {
+        $.ajax({
+            url: '{% url "home.topic_comment_publish" %}',
+            type: 'POST',
+            data: data,
+            success: function (info) {
+                alert(info.msg);
+                if (info.code === 1) {
+                    location.reload();
+                    return;
+                } else {
+                    location.reload();
+                }
+            }
+        });
+        return true
+    }
+
+
+</script>
+{% endblock %}

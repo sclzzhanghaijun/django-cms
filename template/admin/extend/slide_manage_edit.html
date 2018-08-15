@@ -1,0 +1,148 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="admin-main layui-anim layui-anim-upbit">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li><a href="{% url 'slide_manage_list' %}">所有轮播</a></li>
+            <li><a href="{% url 'slide_manage_add' %}">添加轮播</a></li>
+            <li class="layui-this"><a href="{% url 'slide_manage_edit' %}">编辑轮播</a></li>
+        </ul>
+
+        <form class="layui-form" action="{% url 'slide_manage_edit' %}" method="post" enctype="multipart/form-data" style="margin-top: 15px;">
+            <input type="hidden" name="slide_id" value="{{ data.slide_id }}">
+            <input type="hidden" name="status" value="{{ data.status }}">
+            <div class="layui-form-item">
+                <label class="layui-form-label">栏目</label>
+                <div class="layui-input-block">
+                    <select name="category_id" lay-verify="required" class="category-id">
+                        {% for row in category_list %}
+                        <option value="{{ row.category_id }}"
+                                {% if row.category_id == data.category_id %}selected {% endif %}>{{ row.category_name }}
+                        </option>
+                        {% endfor %}
+
+
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">轮播名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="slide_title" required lay-verify="required" placeholder="请输入轮播名称"
+                           autocomplete="off" class="layui-input side-name" value="{{data.slide_title}}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">链接地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="href_url" required lay-verify="required" placeholder="请输入链接地址"
+                           autocomplete="off" class="layui-input href-url" value="{{data.href_url}}">
+                </div>
+
+
+            </div>
+
+            <div class="layui-form-item">
+
+                <div class="layui-input-block layui-upload">
+
+                    <div class="layui-upload">
+                        <button type="button" class="layui-btn" id="test1">上传图片</button>
+                        <input type="hidden" name="picture_url" class="picture-url" value="{{data.picture_url}}">
+                        <div class="layui-upload-list">
+                            <img class="layui-upload-img" id="demo1" src="{{data.picture_url}}">
+                            <p id="demoText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    <input type="text" name="describe" required lay-verify="required" placeholder="请输入描述"
+                           autocomplete="off" class="layui-input describe" value="{{data.describe}}">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">轮播内容</label>
+                    <div class="layui-input-block">
+                        <textarea name="content" placeholder="请输入内容"
+                                  class="layui-textarea content">{{data.content}}</textarea>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+{% block extrajavascript %}
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'form', 'table', 'upload'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form, upload = layui.upload,
+            picture_url = '';
+        //提交表单
+        form.on('submit(formDemo)', function (data) {
+            var action = $('.layui-form').attr('action');
+            $.post(action, data.field, function (result) {
+                if (result.code == 1) {
+                    layer.alert(result.msg, function () {
+                       window.location.href = "{% url 'slide_manage_list' %}"
+                    });
+                } else {
+                    layer.msg(result.msg);
+                }
+            });
+            return false;
+        });
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            , url: 'http://127.0.0.1:8000/api/ueditor/index?action=uploadimage&encode=utf-8'
+            , field: "upfile"
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function (index, file, result) {
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                }
+                $(".picture-url").val(res.url);
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    uploadInst.upload();
+                });
+            }
+        });
+    });
+
+
+</script>
+{% endblock %}

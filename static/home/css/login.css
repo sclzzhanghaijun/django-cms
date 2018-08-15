@@ -1,0 +1,552 @@
+.icon-modal {
+    display: inline-block;
+    vertical-align: top;
+    background-image: url(../images/icon_login.png);
+    background-size: 200px 200px;
+    background-repeat: no-repeat;
+    width: 45px;
+    height: 45px;
+}
+
+.icon-alert-close {
+    position: absolute;
+    right: 40px;
+    top: 40px;
+    background-position: 0 -1px;
+    width: 20px;
+    height: 20px;
+}
+
+.icon-login-qq {
+    background-position: 4px -39px;
+}
+
+.icon-login-wx {
+    background-position: -2px -97px;
+}
+
+.icon-login-wb {
+    background-position: -2px -147px;
+}
+
+.icon-login-zfb {
+    background-position: -67px -40px;
+}
+
+.icon-qr-or-pc {
+    width: 60px;
+    height: 60px;
+    background-position: -135px -135px;
+    cursor: pointer;
+}
+
+.icon-qr-or-pc.active {
+    background-position: -54px -135px;
+}
+
+.icon-l-caret {
+    width: 15px;
+    height: 20px;
+    background-position: -30px 1px;
+    margin-top: 9px;
+}
+
+#login-modal .modal-dialog {
+    width: 452px;
+}
+
+.login-form {
+    position: relative;
+    margin-top: 10px;
+}
+
+.login-label {
+    position: relative;
+    width: 100%;
+    display: inline-block;
+}
+
+.login-input {
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    border: 1px solid #eee;
+    outline: 0;
+    font-size: 12px;
+    color: #333;
+    padding: 0 12px;
+}
+
+.login-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+}
+
+.login-input:focus {
+    border: 1px solid #1d1d1d;
+}
+
+.sms-text {
+    position: absolute;
+    color: #1d1d1d;
+    font-size: 12px;
+    top: -45px;
+    right: 0;
+    cursor: pointer;
+}
+
+.sms-info {
+    position: absolute;
+    color: #bbb;
+    font-size: 12px;
+    top: -24px;
+    left: 0;
+}
+
+.login-operation {
+    font-size: 12px;
+    color: #8d8d8d;
+    line-height: 1;
+    margin-top: 10px;
+}
+
+.login-operation a {
+    color: #8d8d8d;
+}
+
+.btn-login {
+    height: 40px;
+    width: 100%;
+    background: #1d1d1d;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    border: none;
+    outline: 0;
+    margin-top: 20px;
+    line-height: 40px;
+    padding: 0;
+}
+
+.register-text {
+    font-size: 16px;
+    width: 100%;
+    text-align: center;
+    line-height: 1;
+    cursor: pointer;
+    margin: 20px 0 0;
+}
+
+.register-top-text {
+    text-align: right;
+    margin-bottom: 20px;
+    line-height: 1;
+}
+
+.third-box {
+    position: relative;
+    border-top: 1px solid #eee;
+    text-align: center;
+    margin-top: 32px;
+    padding: 36px 0 0;
+}
+
+.third-box .title {
+    position: absolute;
+    top: -32px;
+    text-align: center;
+    width: 100%;
+}
+
+.third-box .title span {
+    color: #8d8d8d;
+    font-size: 12px;
+    background: #fff;
+    display: inline-block;
+    padding: 0 10px;
+}
+
+.third-box a {
+    margin-right: 50px;
+}
+
+.third-box a:last-child {
+    margin-right: 0;
+}
+
+.third-box i {
+    width: 46px;
+    height: 38px;
+}
+
+.qr-pc {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+}
+
+.wx-box {
+    height: 400px;
+}
+
+.label-select-box {
+    position: absolute;
+    top: 12px;
+    width: 74px;
+    height: 40px;
+    background: #ddd;
+    line-height: 40px;
+    color: #1d1d1d;
+    left: 0;
+}
+
+.label-select-box:hover {
+    background: #f5f5f5;
+    color: #1d1d1d;
+}
+
+.bind-edit-label-select {
+    top: 35px;
+    left: 90px;
+}
+
+.bind-label-select-input {
+    left: 70px;
+    width: 275px;
+}
+
+.country-box {
+    display: none;
+    background: #fff;
+    position: fixed;
+    top: 162px;
+    width: 370px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .14);
+    z-index: 10000;
+    bottom: 41px;
+    padding: 16px 12px;
+}
+
+.country-box:before {
+    width: 15px;
+    height: 15px;
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    background: #fff;
+    border: 1px solid #ddd;
+    position: absolute;
+    top: -8px;
+    left: 30px;
+    content: " ";
+    border-width: 1px 1px 0 0;
+}
+
+.three-associated {
+    position: relative;
+}
+
+.bind-box {
+    position: absolute;
+    height: 200px;
+    top: 84px;
+    width: 372px;
+}
+
+.country-ul {
+    overflow: auto;
+    height: 100%;
+}
+
+.country-ul li {
+    height: 48px;
+    width: 100%;
+    cursor: pointer;
+    line-height: 48px;
+    padding: 0 12px;
+}
+
+.country-ul li:hover {
+    background: #f5f5f5;
+}
+
+.country-ul li:first-child {
+    padding: 0 12px !important;
+}
+
+.edit-mobile-box {
+    left: 85px;
+    top: 90px;
+    position: absolute;
+    height: 210px;
+}
+
+.geetest_login_box {
+    margin-top: 10px;
+}
+
+.btn-captcha {
+    display: inline-block;
+    position: absolute;
+    right: 6px;
+    top: 17px;
+    background: #1d1d1d;
+    color: #fff;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0 15px;
+}
+
+.btn-captcha.disabled {
+    color: #8d8d8d;
+    background: #ddd;
+}
+
+.retrieve-password-box, .three-login-box {
+    position: relative;
+    width: 452px;
+    background: #fff;
+    height: 550px;
+    margin: 30px auto 0;
+    padding: 40px;
+}
+
+.three-login-box .title {
+    font-size: 16px;
+    text-align: center;
+}
+
+.three-user-box {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 30px auto 50px;
+}
+
+.retrieve-password-box .title {
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.login-select {
+    position: absolute;
+    height: 40px;
+    right: 0;
+    top: 0;
+    background: #fff;
+    -webkit-background: #fff;
+    width: 282px;
+    border: 1px solid #eee;
+    outline: 0;
+    text-align: center;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    padding-left: 10px;
+}
+
+.login-select-caret {
+    position: absolute;
+    right: 10px;
+    top: 0;
+}
+
+.retrieve-box {
+    position: absolute;
+    width: 372px;
+    height: 220px;
+}
+
+.login-input::-webkit-input-placeholder, .login-input:-moz-placeholder, .login-input::-moz-placeholder, .login-input:-ms-input-placeholder {
+    color: #bbb;
+}
+
+.login-operation input, .login-operation label {
+    margin: 0;
+}
+
+.box {
+    position: relative;
+    padding: 1px;
+    top: 10%;
+    opacity: 0.5;
+    z-index: 1000;
+    opacity: 1;
+}
+
+.box_bg {
+}
+
+.box2 {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    display: none;
+    z-index: 5;
+    position: fixed;
+    background: #fff scroll 0% 0%;
+    opacity: 0.99;
+}
+
+.icon-search-close a, .icon-alert-close a {
+    width: 26px;
+    height: 26px;
+}
+
+.search-li, .zhuce {
+    cursor: pointer;
+}
+
+.zc_box {
+    position: relative;
+    padding: 1px;
+    top: 10%;
+    opacity: 0.5;
+    z-index: 1000;
+    opacity: 1;
+}
+
+.zc_box2 {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    display: none;
+    z-index: 5;
+    position: fixed;
+    background: #000 scroll 0% 0%;
+    opacity: 0.99;
+}
+
+.cd-user-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(52, 54, 66, 0.9);
+    z-index: 3;
+    overflow-y: auto;
+    cursor: pointer;
+    visibility: hidden;
+    opacity: 0;
+    -webkit-transition: opacity 0.3s 0, visibility 0 0.3s;
+    -moz-transition: opacity 0.3s 0, visibility 0 0.3s;
+    transition: opacity 0.3s 0, visibility 0 0.3s;
+}
+
+.cd-user-modal.is-visible {
+    visibility: visible;
+    opacity: 1;
+    -webkit-transition: opacity 0.3s 0, visibility 0 0;
+    -moz-transition: opacity 0.3s 0, visibility 0 0;
+    transition: opacity 0.3s 0, visibility 0 0;
+}
+
+.cd-user-modal.is-visible .cd-user-modal-container {
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+    -o-transform: translateY(0);
+    transform: translateY(0);
+}
+
+.cd-user-modal-container {
+    position: relative;
+    width: 450px;
+    background: #FFF;
+    margin: 3em auto 4em;
+    cursor: auto;
+    border-radius: 0.25em;
+    -webkit-transform: translateY(-30px);
+    -moz-transform: translateY(-30px);
+    -ms-transform: translateY(-30px);
+    -o-transform: translateY(-30px);
+    transform: translateY(-30px);
+    -webkit-transition-property: -webkit-transform;
+    -moz-transition-property: -moz-transform;
+    transition-property: transform;
+    -webkit-transition-duration: 0.3s;
+    -moz-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+}
+
+.cd-close-form {
+    /* form X button on top right */
+    display: block;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    right: 30px;
+    top: 20px;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    background: url(../images/close.png) center center no-repeat;
+}
+
+#cd-login, #cd-signup {
+    display: none;
+    padding: 40px;
+}
+
+#cd-login.is-selected, #cd-signup.is-selected {
+    display: block;
+    padding: 40px;
+}
+
+.login-label.col-xs-label {
+    padding-left: 74px;
+}
+
+.geetest_login_sms_box {
+    margin: 5px 0;
+}
+
+.wrp_code {
+    border: 1px #e2e2e2 solid;
+    padding: 10px;
+}
+
+/*普通登陆和微信登陆切换 */
+.register {
+    position: relative
+}
+
+.register .register-top {
+    display: block;
+    width: 46px;
+    height: 46px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.string-message {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: normal;
+    color: #FF5722;
+}
+
+.ring-up {
+    float: right;
+    font-size: 1.5rem;
+}
+
+.ring-up img {
+    width: 40px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+.ring-up .login-out{
+    padding: 5px;
+    color:#01AAED;
+}

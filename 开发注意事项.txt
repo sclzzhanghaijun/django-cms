@@ -1,0 +1,10 @@
+1、最好使用python虚拟环境来搭建该项目进行开发
+
+2、根据requirements.txt进行安装相关依赖包，命令如下
+    pip install -r requirements.txt
+
+3、开发中如果安装了必要的依赖包，请使用如下命令更新下requirements.txt该文件，然后上传到git：
+    pip freeze requirements.txt
+
+4、运行该项目命令：
+    python manage.py runserver

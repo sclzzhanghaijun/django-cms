@@ -1,0 +1,80 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'home/webuploader/webuploader.css' %}">
+    <style>
+        .control-label {
+            position: inherit;
+        }
+
+        .form-box {
+            margin: 50px 0 100px 0;
+        }
+
+        .webuploader-container {
+            margin-top: 27px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="box_moder friend-link-block">
+            <h4>发表话题</h4>
+            <span class="span-mark"></span>
+        </div>
+        <div class="form-box">
+            <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-2 control-label">标题</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="topic_title" class="form-control" id="inputEmail3"
+                               placeholder="请输入标题">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-2 control-label">内容</label>
+                    <div class="col-sm-10">
+                        <script id="container" name="content" type="text/plain"></script>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-1 col-sm-10">
+                        <button type="button" class="btn btn-primary" id="sumit">发布</button>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'ueditor/ueditor.config.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ueditor/ueditor.all.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'home/webuploader/webuploader.min.js' %}"></script>
+    <script>
+        UE.getEditor('container', {
+            initialFrameHeight: 300,
+            zIndex: 0,
+            toolbars: [
+                ['fullscreen', 'source', 'undo', 'redo', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', 'simpleupload']]
+        });
+
+        $("#sumit").on('click', function () {
+            var $from = $("form");
+            $.ajax({
+                url: $from.attr('action'),
+                type: $from.attr('method'),
+                data: $from.serialize(),
+                success: function (info) {
+                    if (info.code === 1) {
+                        location.reload();
+                        return;
+                    }
+                }
+            });
+            return true
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block content %}
+    <div class="article-section-wrap">
+        <div class="article-section">
+            <div class="container">
+
+                {% for row in version_list %}
+                    <div style="border-bottom: 1px solid #E9E7E7;">
+                        <h4>版本：{{ row.version }}</h4>
+                        <div>{{ row.description }}</div>
+                        <div class="mob-author">
+                            <span class="time" style="margin: 0px;">发布日期：{{ row.release_time }}</span>
+                            <i></i><em>下载量：{{ row.download_count }}次</em>
+                            <a href="{% url 'home.download' %}?version={{ row.version }}" style="margin-left: 15px;">点击下载</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="article-section article-section-last"></div>
+    </div>
+{% endblock %}

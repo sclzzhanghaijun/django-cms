@@ -1,0 +1,124 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="layui-card-body">
+    <div class="layui-tab" lay-filter="component-tabs-brief">
+        <ul class="layui-tab-title">
+
+            <li class="layui-this"><a href="{% url 'topic_manage_list' %}">话题列表</a></li>
+            <li><a href="{% url 'topic_manage_add' %}">添加话题</a></li>
+        </ul>
+    </div>
+    <form class="layui-form layui-form-pane" action="" method="get">
+        <div class="layui-inline">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-inline">
+                <input type="text" name="topic_id" value="" placeholder="请输入ID" class="layui-input"
+                       id="topic-id">
+            </div>
+        </div>
+
+
+        <div class="layui-inline">
+            <label class="layui-form-label">话题标题</label>
+            <div class="layui-input-inline">
+                <input type="text" name="topic_title" value="" placeholder="请输入话题标题" class="layui-input"
+                       id="topic-title">
+            </div>
+        </div>
+
+
+        <div class="layui-inline">
+            <label class="layui-form-label">发布对象</label>
+            <div class="layui-input-inline">
+                <select name="user_type" lay-verify="required" id="user-type">
+                    <option value="0">全部</option>
+                    <option value="1">管理员</option>
+                    <option value="2">会员</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="layui-inline">
+            <button class="layui-btn" type="button" id="tableIns">搜索</button>
+        </div>
+
+    </form>
+    <div>
+        <table id="layui-table" lay-filter="test"></table>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+
+<script type="text/html" id="action">
+    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="manage">评论管理</a>
+</script>
+
+
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'form', 'table'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form, table = layui.table, tableIns;
+        tableIns = table.render({
+            elem: '#layui-table'
+            , url: '{% url "topic_manage_list" %}' //数据接口
+            , page: true //开启分页
+            , where: {
+                topic_id: $("#topic-id").val(),
+                topic_title: $("#topic-title").val(),
+                user_type: $("#user-type").val()
+            }
+            , cols: [[ //表头
+                {width: 120, field: 'topic_id', title: 'ID'}
+                , {field: 'topic_title', title: '话题标题'}
+                , {width: 180, field: 'user_type', title: '发布对象'}
+                , {width: 120, field: 'view_num', title: '浏览量'}
+                , {width: 120, field: 'comment_num', title: '评论数'}
+                , {width: 200, field: 'create_time', title: '创建时间'}
+                , {width: 250, toolbar: '#action', title: '操作', templet: '#action'}
+            ]]
+        });
+
+        $("#tableIns").click(function () {
+            tableIns.reload({
+                url: '{% url "topic_manage_list" %}' //数据接口
+                , where: {
+                    topic_id: $("#topic-id").val(),
+                    topic_title: $("#topic-title").val(),
+                    user_type: $("#user-type").val()
+                }
+                , page: {
+                    page: 1
+                }
+            })
+        });
+
+
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('你确定真的删除吗？', function (index) {
+                    $.post("{% url 'topic_manage_delete' %}", {topic_id: data.topic_id}, function (result) {
+                        if (result.code === 1) {
+                            layer.alert(result.msg, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(result.msg)
+                        }
+                    });
+                    return false;
+                });
+            } else if (obj.event === 'edit') {
+                window.location.href = "{% url 'topic_manage_edit' %}?topic_id=" + data.topic_id + ""
+            } else if (obj.event === 'manage') {
+                window.location.href = "{% url 'topic_comment_list' %}?topic_id=" + data.topic_id + ""
+            }
+        });
+    });
+</script>
+{% endblock %}
+

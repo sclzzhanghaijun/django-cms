@@ -1,0 +1,132 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="layui-tab layui-tab-brief">
+    <div class="layui-tab-content">
+        <ul class="layui-tab-title">
+            <li class=""><a href="{% url 'user_list' %}">后台用户列表</a></li>
+            <li class=""><a href="{% url 'admin_user_add' %}">后台用户添加</a></li>
+            <li class="layui-this">后台用户编辑</li>
+        </ul>
+        <div class="layui-tab-item layui-show" style="margin-top: 10px">
+            <form class="layui-form form-container" action="" method="post">
+                <input type="hidden" name="first_name" value="">
+                <input type="hidden" name="last_name" value="">
+                <input type="hidden" name="user_id" value="{{ user_info.id }}">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nick_name" value="{{ user_info.nick_name }}" required
+                               lay-verify="required"
+                               placeholder="请输入用户昵称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" value="{{ user_info.email }}" required lay-verify="email"
+                               placeholder="请输入邮箱" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">生日</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="birthday" name="birthday" placeholder="请选择生日" value="{{ user_info.birthday|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" value="{% if user_info.phone != null %}{{ user_info.phone }}{% endif %}" lay-verify="phone"
+                               placeholder="请输入电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="address" value="{% if user_info.address != null %}{{ user_info.address }}{% endif %}" lay-verify=""
+                               placeholder="请输入地址" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="gender" value="female" title="女"
+                               {% if user_info.gender == "female" %}checked="" {% endif %}>
+                        <input type="radio" name="gender" value="male" title="男"
+                               {% if user_info.gender == "male" %}checked="" {% endif %}>
+                    </div>
+                </div>
+                {% if user_info.id != 1 %}
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否为超级用户</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="is_superuser" value="1" title="是"
+                               {% if user_info.is_superuser == 1 %}checked="" {% endif %}>
+                        <input type="radio" name="is_superuser" value="0" title="否"
+                               {% if user_info.is_superuser == 0 %}checked="" {% endif %}>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否可登陆</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="is_staff" value="1" title="是"
+                               {% if user_info.is_staff == 1 %}checked="" {% endif %}>
+                        <input type="radio" name="is_staff" value="0" title="否"
+                               {% if user_info.is_staff == 0 %}checked="" {% endif %}>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否禁用</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="is_active" value="0" title="是"
+                               {% if user_info.is_active == 0 %}checked="" {% endif %}>
+                        <input type="radio" name="is_active" value="1" title="否"
+                               {% if user_info.is_active == 1 %}checked="" {% endif %}>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn submit-btn" lay-submit="" lay-filter="save">保存</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+<script type="text/javascript">
+    layui.use(['form', 'layedit', 'laydate', 'jquery'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , laydate = layui.laydate
+            , $ = layui.jquery;
+
+        //常规用法
+        laydate.render({
+            elem: '#birthday'
+        });
+
+        //监听提交
+        form.on('submit(save)', function (data) {
+            $.post("{% url 'admin_user_edit' %}", data.field, function (result) {
+                if (result.code !== 1) {
+                    layer.msg(result.msg)
+                } else {
+                    layer.alert(result.msg, function () {
+                        window.location.href = "{% url 'user_list' %}";
+                    });
+                }
+            });
+            return false;
+        });
+        return false;
+    });
+
+</script>
+{% endblock %}

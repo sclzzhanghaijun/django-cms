@@ -1,0 +1,67 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li class=""><a href="{% url 'admin_group_list' %}">后台管理组列表</a></li>
+                <li class="layui-this"><a href="{% url 'admin_group_add' %}">后台管理组添加</a></li>
+            </ul>
+            <div class="layui-tab-item layui-show" style="margin-top: 10px">
+                <form class="layui-form form-container" action="" method="post">
+                    <input type="hidden" name="first_name" value="">
+                    <input type="hidden" name="last_name" value="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户组名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="group_name" value="" required lay-verify="required"
+                                   placeholder="请输入用户组名" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">用户组描述</label>
+                        <div class="layui-input-block">
+                        <textarea name="group_description" placeholder="请输入菜单描述" class="layui-textarea"
+                                  lay-verify="required"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户组状态</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="group_status" value="on" title="正常" checked>
+                            <input type="radio" name="group_status" value="off" title="禁用">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['form', 'layedit', 'laydate', 'jquery'], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , layedit = layui.layedit
+                , laydate = layui.laydate
+                , $ = layui.jquery;
+            form.on('submit(demo1)', function (data) {
+                $.post("{% url 'admin_group_add' %}", data.field, function (result) {
+                    if (result.code !== 1) {
+                        layer.msg(result.msg)
+                    } else {
+                        layer.alert(result.msg, function () {
+                            window.location.href = "{% url 'admin_group_list' %}";
+                        });
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li><a href="{% url 'user_list' %}">后台用户列表</a></li>
+                <li><a href="{% url 'admin_user_add' %}">后台用户添加</a></li>
+                <li><a href="{% url 'admin_user_detail' %}?user_id={{ user_info.id }}" class="layui-this">详情</a></li>
+            </ul>
+            <div class="layui-form-item">
+                <table class="layui-table">
+                    <colgroup>
+                        <col width="200">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <th>用户名：</th>
+                        <th>{{ user_info.username }}</th>
+                    </tr>
+                    <tr>
+                        <th>昵称：</th>
+                        <th>{{ user_info.nick_name }}</th>
+                    </tr>
+                    <tr>
+                        <th>性别：</th>
+                        <th>
+                            {% if user_info.gender == 'male' %}
+                                男
+                            {% else %}
+                                女
+                            {% endif %}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>生日：</th>
+                        <th>{{ user_info.birthday|date:'Y-m-d' }}</th>
+                    </tr>
+                    <tr>
+                        <th>电话：</th>
+                        <th>{{ user_info.phone }}</th>
+                    </tr>
+                    <tr>
+                        <th>邮箱：</th>
+                        <th>{{ user_info.email }}</th>
+                    </tr>
+                    <tr>
+                        <th>地址：</th>
+                        <th>{{ user_info.address }}</th>
+                    </tr>
+                    <tr>
+                        <th>最后登录时间：</th>
+                        <th>{{ user_info.last_login|date:'Y-m-d H:i:s' }}</th>
+                    </tr>
+                    <tr>
+                        <th>超级管理员：</th>
+                        <th>{% if user_info.is_superuser == 0 %}
+                            否
+                        {% else %}
+                            是
+                        {% endif %}</th>
+                    </tr>
+                    <tr>
+                        <th>是否能够登录：</th>
+                        <th>{% if user_info.is_staff == 1 %}
+                            是
+                        {% else %}
+                            否
+                        {% endif %}</th>
+                    </tr>
+                    <tr>
+                        <th>是否启用：</th>
+                        <th>{% if user_info.is_active == 1 %}
+                            启用
+                        {% else %}
+                            禁用
+                        {% endif %}</th>
+                    </tr>
+                    <tr>
+                        <th>注册时间：</th>
+                        <th>{{ user_info.date_joined|date:"Y-m-d H:i:s" }}</th>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

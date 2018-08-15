@@ -1,0 +1,112 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li><a href="{% url 'manager_user' %}">用户列表</a></li>
+                <li class="layui-this"><a href="{% url 'register_user' %}">注册用户</a></li>
+            </ul>
+            <form class="layui-form" action="" style="margin-top: 16px">
+                <!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
+                {% csrf_token %}
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" required lay-verify="required" placeholder="请输入用户名"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nickname" required lay-verify="required" placeholder="请输入昵称"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-inline">
+                        <input name="password" required lay-verify="password"
+                               placeholder="请输入密码" value="123456"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="gender" value="male" title="男">
+                        <input type="radio" name="gender" value="female" title="女" checked>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" placeholder="请输入联系电话"
+                               lay-verify="phone"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" placeholder="请输入邮箱"
+                               lay-verify="email"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="confirm">确认</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+            <p>{{ rlt }}</p>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['form', 'jquery'], function () {
+            var form = layui.form
+                , $ = layui.jquery;
+
+            form.verify({
+                username: function (value, item) { //value：表单的值、item：表单的DOM对象
+                    if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                        return '用户名不能有特殊字符';
+                    }
+                    if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                        return '用户名首尾不能出现下划线\'_\'';
+                    }
+                    if (/^\d+\d+\d$/.test(value)) {
+                        return '用户名不能全为数字';
+                    }
+                },
+                nickname: function (value, item) {
+                    if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                        return '用户名不能有特殊字符';
+                    }
+                    if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                        return '用户名首尾不能出现下划线\'_\'';
+                    }
+                },
+                password: [
+                    /^[\S]{6,12}$/
+                    , '密码必须6到12位，且不能出现空格'
+                ]
+            });
+
+            form.on("submit(confirm)", function (data) {
+                $.post("{% url 'register_user' %}", data.field, function (result) {
+                    alert(result.msg);
+                });
+                return false;
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li class="layui-this"><a href="{% url 'manager_user' %}">用户列表</a></li>
+                <li><a href="{% url 'register_user' %}">注册用户</a></li>
+            </ul>
+            <form class="layui-form layui-form-pane" action="" method="post">
+                <div class="demoTable" style="margin-top: 16px">
+                    搜索ID：
+                    <div class="layui-inline">
+                        <input class="layui-input" name="input_id" id="input_id" autocomplete="off">
+                    </div>
+                    搜索用户名：
+                    <div class="layui-inline">
+                        <input class="layui-input" name="input_username" id="input_username" autocomplete="off">
+                    </div>
+                    搜索昵称：
+                    <div class="layui-inline">
+                        <input class="layui-input" name="input_nickname" id="input_nickname" autocomplete="off">
+                    </div>
+                    搜索电话：
+                    <div class="layui-inline">
+                        <input class="layui-input" name="input_phone" id="input_phone" autocomplete="off">
+                    </div>
+                    搜索邮箱：
+                    <div class="layui-inline">
+                        <input class="layui-input" name="input_email" id="input_email" autocomplete="off">
+                    </div>
+                    <button class="layui-btn" type="button" id="search">搜索</button>
+                </div>
+            </form>
+            <table class="layui-table" id="list" lay-filter="table"></table>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+
+    <script type="text/html" id="action">
+        <a href="{% url 'user_detail' %}{% verbatim %}?user_id={{ d.user_id }}{% endverbatim %}"
+           class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+
+        <a class="layui-btn layui-btn-xs" lay-event="active_change">
+            {% verbatim %}
+            {{# if(d.is_active==0){ }}
+            禁用
+            {{# }else{ }}
+            启用
+            {{# } }}
+            {% endverbatim %}
+        </a>
+
+        <a class="layui-btn layui-btn-xs" lay-event="reset_pwd">重置密码</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+    <script>
+        //注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+        layui.use(['element', 'table', 'form', 'jquery'], function () {
+            var table = layui.table;
+            var form = layui.form;
+            var $ = layui.jquery;
+
+            table.on('tool(table)', function (obj) {
+                var data = obj.data;
+
+                if (obj.event === 'disable') {
+                    layer.confirm('是否禁用此用户', function () {
+                        post_data = {
+                            'user_id': data.user_id,
+                            'is_active': 1
+                        };
+                        $.post("{% url 'user_state_change' %}", post_data, function (result) {
+                            if (result.code == 1) {
+                                window.location.reload();
+                            } else {
+                                layer.alert(result.message);
+                            }
+                        });
+                    });
+
+                } else if (obj.event === 'active_change') {
+                    post_data = {
+                        'user_id': data.user_id,
+                        'is_active': 0
+                    };
+                    active_hint = '是否启用此用户';
+                    if (data.is_active == 0) {
+                        post_data.is_active = 1;
+                        active_hint = '是否禁用此用户';
+                    }
+                    layer.confirm(active_hint, function () {
+                        $.post("{% url 'user_state_change' %}", post_data, function (result) {
+                            if (result.code == 1) {
+                                window.location.reload();
+                            } else {
+                                layer.alert(result.message);
+                            }
+                        });
+                    });
+                } else if (obj.event === 'reset_pwd') {
+                    layer.confirm('重置此用户的密码为初始密码？', function () {
+                        $.post("{% url 'user_reset_pwd' %}", data, function (result) {
+                            layer.alert(result.message);
+                        });
+                    });
+                } else if (obj.event === 'del') {
+                    layer.confirm('是否删除此用户？', function (index) {
+                        $.post("{% url 'user_delete' %}", data, function (result) {
+                            if (result.code == 1) {
+                                layer.msg(result.message);
+                                obj.del();
+                                layer.close(index);
+                            } else {
+                                layer.alert(result.message);
+                            }
+                        });
+                    });
+                }
+            });
+
+            tableIns = table.render({
+                elem: '#list',
+                url: "{% url 'user_list_data' %}",
+                method: 'post',
+                where: {
+                    user_id: $('#input_id').val(),
+                    username: $('#input_username').val(),
+                    nickname: $('#input_nickname').val(),
+                    phone: $('#input_phone').val(),
+                    email: $('#input_email').val()
+                },
+                page: true,
+                cols: [[
+                    {width: 60, align: 'center', field: 'user_id', title: 'ID'},
+                    {field: 'username', title: '用户名'},
+                    {field: 'nickname', title: '昵称'},
+                    {
+                        width: 60, align: 'center', field: 'gender', title: '性别', templet: function (d) {
+                        return d.gender === 'male' ? '男' : '女';
+                    }
+                    },
+                    {field: 'phone', title: '电话'},
+                    {field: 'email', title: '邮箱'},
+                    {
+                        field: 'is_active', title: '状态', templet: function (d) {
+                        return d.is_active === 0 ? '启用' : '禁用';
+                    }
+                    },
+                    {width: 280, align: 'center', toolbar: '#action', title: '操作'}
+                ]],
+                limit: 20 //每页默认显示的数量
+            });
+
+            $('#search').click(function () {
+                tableIns.reload({
+                    where: {
+                        user_id: $('#input_id').val(),
+                        username: $('#input_username').val(),
+                        nickname: $('#input_nickname').val(),
+                        phone: $('#input_phone').val(),
+                        email: $('#input_email').val()
+                    },
+                    page: {
+                        page: 1
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

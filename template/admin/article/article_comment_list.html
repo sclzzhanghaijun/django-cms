@@ -1,0 +1,126 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <style>
+        .layui-input-block {
+            margin: 20px;
+        }
+
+        .layui-textarea {
+            min-height: 205px;
+        }
+    </style>
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li><a href="{% url 'article_list' %}">文章列表</a></li>
+                <li class="layui-this"><a href="javascript:void(0)">评论管理</a></li>
+            </ul>
+            <table class="layui-hide" id="list" lay-filter="list"></table>
+        </div>
+    </div>
+    <div style="display: none" id="reply_window">
+        <form class="layui-form" action="">
+            <input type="hidden" name="art_id" value="{{ art_id }}">
+            <input type="hidden" name="reply_comment_id" id="reply_comment_id">
+            <div class="layui-form-item layui-form-text">
+                <div class="layui-input-block">
+                    <textarea placeholder="请输入内容" name="comment_content" required lay-verify="required"
+                              class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="reset" class="layui-btn layui-btn-primary" style="float: right;margin-left: 10px">重置
+                    </button>
+                    <button class="layui-btn" lay-submit lay-filter="formDemo" style="float: right;margin-right: 10px">
+                        立即提交
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extrajavascript %}
+
+    <script type="text/javascript">
+        var $;
+        layui.use(['table', 'form'], function () {
+            var table = layui.table;
+            var form = layui.form;
+            $ = layui.jquery;
+            var tableIn = table.render({
+                id: 'comment',
+                elem: '#list',
+                url: '{% url "article_comment_list_data" %}',
+                where: {art_id:{{ art_id }}},
+                method: 'post',
+                page: true,
+                cols: [[
+                    {#{checkbox: true, fixed: true},#}
+                    {field: 'article_comment_id', title: '评论ID', width: 80, fixed: false},
+                    {field: 'article_id', title: '文章标题', width: 330},
+                    {field: 'user_id', title: '评论作者', width: 180},
+                    {field: 'comment_content', title: '评论内容', minwidth: 400},
+                    {field: 'created_time', title: '评论时间', width: 160},
+                    {
+                        width: 140, align: 'center', title: '操作', templet: function (d) {
+                            return (d.reply_comment_id == 0 ? '<a  onclick="showwindow(this)" data-value="' + d.article_comment_id + '" class="layui-btn layui-btn-xs" lay-event="edit">回复</a> &nbsp;&nbsp;' : '') +
+                                '<a  onclick="delete_comment(this)" href="javascript:void(0)" data-value="' + d.article_comment_id + '" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>'
+                        }
+                    }
+                ]],
+                limit: 15 //每页默认显示的数量
+            });
+
+            //监听提交
+            form.on('submit(formDemo)', function (data) {
+                $.post("{% url 'add_comment' %}", data.field, function (result) {
+                    if (result.code !== 1) {
+                        var msg = result.msg;
+                        $.each(msg, function (key, val) {
+                            layer.msg(val[0]);
+                            return false;
+                        });
+                    } else {
+                        layer.alert(result.msg, function () {
+                            window.location.href = "{% url 'article_comment_list' %}?art_id=" +{{ art_id }};
+                        });
+                    }
+                });
+                return false;
+            });
+        });
+
+        function delete_comment(self) {
+            var id = $(self).attr('data-value');
+            layer.confirm('确认要删除该条评论吗？', function () {
+                $.post("{% url 'article_comment_delete' %}", {article_comment_id: id}, function (result) {
+                    if (result.code === 1) {
+                        layer.alert(result.msg, function () {
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.alert(result.msg)
+                    }
+                });
+            });
+        }
+
+        function showwindow(self) {
+            var id = $(self).attr('data-value');
+            $("#reply_comment_id").val(id);
+            layer.open({
+                type: 1,
+                title: '回复',
+                skin: 'layui-layer-rim', //加上边框
+                area: ['630px', '360px'], //宽高
+                content: $('#reply_window')
+            });
+        }
+
+    </script>
+
+
+
+{% endblock %}

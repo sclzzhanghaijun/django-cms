@@ -1,0 +1,70 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="admin-main layui-anim layui-anim-upbit">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this"><a href="{% url 'slide_category_list' %}">轮播分类</a></li>
+            <li><a href="{% url 'slide_add_category' %}">添加轮播分类</a></li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+
+                <table id="layui-table" lay-filter="test"></table>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+<script type="text/html" id="action">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/javascript">
+
+    layui.use(['element', 'jquery', 'form', 'table'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form;
+        var table = layui.table;
+
+        table.render({
+            elem: '#layui-table'
+            , url: '{% url "slide_category_list" %}' //数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {width: 120, field: 'category_id', title: 'ID'}
+                , {width: 250, field: 'category_name', title: '分类名称'}
+                , {width: 500, field: 'category_identify', title: '分类标识'}
+                , {field: 'category_remark', title: '描述'}
+                , {width: 280, toolbar: '#action', title: '操作'}
+
+            ]]
+        });
+
+
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('你确定真的删除吗？', function (index) {
+                    $.post("{% url 'slide_delete_category' %}", {category_id: data.category_id}, function (result) {
+                        if (result.code === 1) {
+                            layer.alert(result.msg, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(result.msg)
+                        }
+                    });
+                    return false;
+                });
+            } else if (obj.event === 'edit') {
+                window.location.href="{% url 'slide_edit_category' %}?category_id="+data.category_id+""
+            }
+        });
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="layui-tab layui-tab-brief">
+    <div class="layui-tab-content">
+        <ul class="layui-tab-title">
+            <li class=""><a href="{% url 'user_list' %}">后台用户列表</a></li>
+            <li class="layui-this"><a href="{% url 'admin_user_add' %}">后台用户添加</a></li>
+        </ul>
+        <div class="layui-tab-item layui-show" style="margin-top: 10px">
+            <form class="layui-form form-container" action="" method="post">
+                <input type="hidden" name="first_name" value="">
+                <input type="hidden" name="last_name" value="">
+                <div class="layui-form-item">
+                        <label class="layui-form-label">所属分组</label>
+                        <div class="layui-input-block">
+                            <select name="group_id" lay-verify="required" id="deptSelect">
+                                {% for item in groupList %}
+                                    <option value="{{ item.group_id }}">{{ item.group_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" value="" required lay-verify="required"
+                               placeholder="请输入用户名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="password" value="" required lay-verify="required"
+                               placeholder="请输入密码" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nick_name" value="" required lay-verify="required"
+                               placeholder="请输入用户昵称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" value="" required lay-verify="email"
+                               placeholder="请输入邮箱" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">生日</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="birthday" name="birthday" placeholder="请选择生日" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" value="" lay-verify="phone"
+                               placeholder="请输入电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="address" value="" lay-verify=""
+                               placeholder="请输入地址" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="gender" value="female" title="女" checked>
+                        <input type="radio" name="gender" value="male" title="男">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否为超级用户</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="is_superuser" value="1" title="是" checked>
+                        <input type="radio" name="is_superuser" value="0" title="否">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否可登陆</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="is_staff" value="1" title="是" checked>
+                        <input type="radio" name="is_staff" value="0" title="否">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否禁用</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="is_active" value="0" title="是">
+                        <input type="radio" name="is_active" value="1" title="否" checked>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn submit-btn" lay-submit lay-filter="save">保存</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+<script type="text/javascript">
+    layui.use(['form', 'layedit', 'laydate', 'jquery'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , laydate = layui.laydate
+            , $ = layui.jquery;
+
+        //常规用法
+        laydate.render({
+            elem: '#birthday'
+        });
+
+        form.on('submit(save)', function (data) {
+            $.post("{% url 'admin_user_add' %}", data.field, function (result) {
+                if (result.code !== 1) {
+                    layer.msg(result.msg)
+                } else {
+                    layer.alert(result.msg, function () {
+                        window.location.href = "{% url 'user_list' %}";
+                    });
+                }
+            });
+            return false;
+        });
+    });
+
+</script>
+{% endblock %}

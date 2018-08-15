@@ -1,0 +1,40 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div>
+
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['table', 'jquery'], function () {
+                var $ = layui.jquery;
+                var msg = "{{ param.msg }}";
+                var url = "{{ param.url }}";
+                var wait = {{ param.wait }};
+                var code = {{ param.code }};
+                var icon = 1;
+                var title = '成功提示';
+                if (code === 0) {
+                    icon = 2;
+                    title = '失败提示';
+                }
+                var success = msg + '页面自动跳转中... 等待时间:' + wait + '秒';
+                var interval = setInterval(function () {
+                    --wait;
+                    if (wait <= 0) {
+                        location.href = url;
+                        clearInterval(interval);
+                    }
+                }, (wait - 1) * 1000);
+                layer.alert(success, {
+                    icon: icon,
+                    title: title
+                }, function () {
+                    location.href = url;
+                });
+            }
+        );
+
+
+    </script>
+{% endblock %}

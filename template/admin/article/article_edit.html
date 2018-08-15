@@ -1,0 +1,126 @@
+{% extends 'admin/admin_base.html' %}
+{% load i18n static %}
+{% block content %}
+    <div class="layui-card-body">
+        <div class="layui-tab" lay-filter="component-tabs-brief">
+            <ul class="layui-tab-title">
+                <li><a href="{% url 'article_list' %}">文章列表</a></li>
+                <li class="layui-this"><a href="javascript:void(0)">编辑文章</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form" action="{% url 'article_edit'  %}" lay-filter="component-form-group" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文章标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="article_title" lay-verify="article_title" autocomplete="off" required value="{{data.article_title}}"
+                                   placeholder="请输入标题" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">所属分类</label>
+                        <div class="layui-input-block">
+                            <select name="category_id" lay-verify="required" id="deptSelect">
+                                {% for item in category %}
+                                    <option value="{{ item.category_id }}" {% if item.category_id == data.category_id %}selected{% endif %}>{{ item.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">文章摘要</label>
+                        <div class="layui-input-block">
+                            <textarea name="article_abstract" placeholder="请输入文章摘要" class="layui-textarea" required>{{data.article_abstract}}</textarea>
+                        </div>
+                    </div>
+                   <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">文章封面图</label>
+                        <div class="layui-input-block">
+                            <img src="{% if data.thumb %}{{ data.thumb }}{% else %}{% static 'admin_c/images/default.png' %}{% endif %}" width="150" id="thumb"
+                                 style="margin-bottom: 10px"><br>
+                            <button type="button" class="layui-btn" id="uploadFile">
+                                <i class="layui-icon">&#xe67c;</i>上传图片
+                            </button>
+                            <input type="hidden" name="thumb" class="picture-url" value="{% if data.thumb %}{{ data.thumb }}{% endif %}">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">文章内容</label>
+                        <div class="layui-input-block">
+                            <script id="container" name="article_content" type="text/plain" required>{{ data.article_content |safe}}</script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="status" value="0" title="草稿状态" checked="">
+                            <div class="layui-unselect layui-form-radio layui-form-radioed"><i
+                                    class="layui-anim layui-icon"></i>
+                                <div>草稿状态</div>
+                            </div>
+                            <input type="radio" name="status" value="1" title="上线状态">
+                            <div class="layui-unselect layui-form-radio"><i class="layui-anim layui-icon"></i>
+                                <div>上线状态</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <div class="layui-footer">
+                                <input type="hidden" value="{{data.article_id}}" name="article_id">
+                                <button class="layui-btn" lay-submit="" lay-filter="*">立即提交</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'ueditor/ueditor.config.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ueditor/ueditor.all.min.js' %}"></script>
+    <script>
+       UE.getEditor('container', {
+            initialFrameHeight: 300,
+            zIndex: 0
+        });
+
+        layui.use(['layer', 'jquery', 'form','upload'], function () {
+            var layer = layui.layer;
+            var $ = layui.jquery;
+            var form = layui.form;
+
+             var upload = layui.upload;
+            //执行实例
+            upload.render({
+                elem: '#uploadFile'
+                , url: '{% url 'uploadfile' %}' + '?action=uploadimage'
+                , field: 'upfile'
+                , done: function (res) {
+                    $("#thumb").attr('src', res.url);
+                    $(".picture-url").val(res.url)
+                }
+                , error: function () {
+                    layer('文件上传失败')
+                }
+            });
+
+            form.on('submit(*)', function (data) {
+                $.ajax({
+                    url: data.form.action,
+                    type: data.form.method,
+                    data: $(data.form).serialize(),
+                    success: function (info) {
+                        layer.msg(info.msg);
+                    }
+                });
+
+                return false;
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<style>
+    .layui-input-block {
+        margin: 20px;
+    }
+
+    .layui-textarea {
+        min-height: 205px;
+    }
+</style>
+<div class="layui-card-body">
+    <div class="layui-tab" lay-filter="component-tabs-brief">
+        <ul class="layui-tab-title">
+            <li><a href="{% url 'topic_manage_list' %}">话题列表</a></li>
+            <li class="layui-this"><a href="{% url 'topic_comment_list' %}">评论管理</a></li>
+        </ul>
+    </div>
+
+
+    <div>
+        <table id="layui-table" lay-filter="test"></table>
+    </div>
+
+    <div style="display: none" id="reply_window">
+        <form class="layui-form" action="">
+            <input type="hidden" name="topic_id" value="{{ topic_id }}" class="topic_id">
+            <input type="hidden" name="reply_comment_id" id="reply_comment_id">
+            <div class="layui-form-item layui-form-text">
+                <div class="layui-input-block">
+                    <textarea placeholder="请输入内容" name="comment_content" required lay-verify="required"
+                              class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="reset" class="layui-btn layui-btn-primary" style="float: right;margin-left: 10px">重置
+                    </button>
+                    <button class="layui-btn" lay-submit lay-filter="formDemo" style="float: right;margin-right: 10px">
+                        立即提交
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+{% block extrajavascript %}
+
+<script type="text/html" id="action">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+
+    {% verbatim %}
+    <a class="layui-btn layui-btn-xs layui-btn-xs reply-a" lay-event="reply"
+       data-value="{{ d.topic_comment_id }}">回复</a>
+    {% endverbatim %}
+
+</script>
+
+
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'form', 'table'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form, table = layui.table,
+            tableIns;
+        tableIns = table.render({
+            elem: '#layui-table'
+            , url: '{% url "topic_comment_list" %}' //数据接口
+            , page: true //开启分页
+            , where: {
+                "topic_id": $(".topic_id").val()
+            }
+            , cols: [[ //表头
+                {width: 120, field: 'topic_comment_id', title: 'ID'}
+                , {width: 180, field: 'topic_title', title: '话题标题'}
+                , {width: 180, field: 'username', title: '评论作者'}
+                // , {field: 'comment_content', title: '评论内容'
+
+                , {
+                     field: 'comment_content', title: '评论内容', templet: function (d) {
+                        return d.reply_comment_info.length === 0 ? d.comment_content : '回复评论ID['+ d.reply_comment_info.topic_comment_id +']：' + d.comment_content;
+                    }
+                }
+
+                , {
+                    width: 180, field: 'reply_comment_id', title: '评论类型', templet: function (d) {
+                        return d.reply_comment_id === 0 ? '话题评论' : '评论回复';
+                    }
+                }
+                , {width: 200, field: 'created_time', title: '评论时间'}
+                , {width: 250, toolbar: '#action', title: '操作', templet: '#action'}
+            ]]
+        });
+
+        //监听提交
+        form.on('submit(formDemo)', function (data) {
+            $.post("{% url 'topic_comment_reply' %}", data.field, function (result) {
+                if (result.code === 1) {
+                    layer.alert(result.msg, function () {
+                        window.location.reload();
+                    });
+                } else {
+                    layer.alert(result.msg)
+                }
+            });
+            return false;
+        });
+
+
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('你确定真的删除吗？', function (index) {
+                    $.post("{% url 'topic_comment_delete' %}", {topic_comment_id: data.topic_comment_id}, function (result) {
+                        if (result.code === 1) {
+                            layer.alert(result.msg, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(result.msg)
+                        }
+                    });
+                    return false;
+                });
+            } else if (obj.event === 'reply') {
+                // var id = $(".reply-a").attr('data-value');
+                $("#reply_comment_id").val(data.topic_comment_id);
+                layer.open({
+                    type: 1,
+                    title: '回复',
+                    skin: 'layui-layer-rim', //加上边框
+                    area: ['630px', '360px'], //宽高
+                    content: $('#reply_window')
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
+

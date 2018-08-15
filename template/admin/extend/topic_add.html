@@ -1,0 +1,80 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+{% block content %}
+<div class="layui-card-body">
+    <div class="layui-tab" lay-filter="component-tabs-brief">
+        <ul class="layui-tab-title">
+            <li><a href="{% url 'topic_manage_list' %}">话题列表</a></li>
+            <li class="layui-this"><a href="{% url 'topic_manage_add' %}">添加话题</a></li>
+        </ul>
+    </div>
+    <div>
+        <div class="layui-card-body" style="padding: 15px;">
+            <form class="layui-form" action="{% url 'topic_manage_add' %}" lay-filter="component-form-group"
+                  method="post">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">话题标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="topic_title" lay-verify="topic-title" autocomplete="off"
+                               required
+                               placeholder="请输入话题标题" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">文章内容</label>
+                    <div class="layui-input-block">
+                        <script id="container" name="content" type="text/plain"></script>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <div class="layui-footer">
+                            <button type="submit" class="layui-btn commit" lay-submit lay-filter="formDemo">提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'ueditor/ueditor.config.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ueditor/ueditor.all.min.js' %}"></script>
+    <script>
+       UE.getEditor('container', {
+            initialFrameHeight: 300,
+            zIndex: 0
+        });
+
+        layui.use(['layer', 'jquery', 'form','upload'], function () {
+            var layer = layui.layer;
+            var $ = layui.jquery;
+            var form = layui.form;
+
+            form.on('submit(formDemo)', function (data) {
+                $.ajax({
+                    url: data.form.action,
+                    type: data.form.method,
+                    data: $(data.form).serialize(),
+                    success: function (data) {
+                        if (data.code === 1) {
+                            layer.alert(data.msg, function () {
+                                window.location.href = "{% url 'topic_manage_list' %}";
+                            });
+                        } else {
+                            layer.alert(data.msg)
+                        }
+                    }
+                });
+
+                return false;
+            });
+        });
+
+    </script>
+{% endblock %}

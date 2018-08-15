@@ -1,0 +1,188 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+
+<div class="layui-card-body">
+    <div class="layui-tab" lay-filter="component-tabs-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this"><a href="{% url 'friend_link_list' %}">友情链接</a></li>
+            <li><a href="{% url 'friend_link_add' %}">添加链接</a></li>
+        </ul>
+    </div>
+    <form class="layui-form layui-form-pane" action="" method="get">
+        <div class="layui-inline">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-inline">
+                <input type="text" name="link_id" value="" placeholder="请输入ID" class="layui-input"
+                       id="link_id">
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label">打开方式</label>
+            <div class="layui-input-inline">
+                <select lay-filter="open_mode" class="open-mode-select">
+                    <option value="">全部</option>
+                    <option value="0">新标签打开</option>
+                    <option value="1">本窗口打开</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label">链接名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="" value="" placeholder="名称" class="layui-input"
+                       id="link-name">
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-inline">
+                <select name="status" lay-verify="required" id="status-select">
+                    <option value="">全部</option>
+                    <option value="0">显示</option>
+                    <option value="1">隐藏</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <button class="layui-btn" type="button" id="tableIns">搜索</button>
+        </div>
+    </form>
+    <div>
+        <table id="layui-table" lay-filter="test"></table>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+
+<script type="text/html" id="action">
+
+    <a class="layui-btn layui-btn-xs layui-btn-normal {{ d.status }}" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {% verbatim %}
+    {{# if(d.status==0){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="status">隐藏</a>
+    {{# }else{ }}
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="status">显示</a>
+    {{# } }}
+    {% endverbatim %}
+
+</script>
+
+
+<script type="text/html" id="field">
+    <div class="layui-input-inline" style="width: 50px;">
+        <input type="text" name="sort" placeholder="" autocomplete="off" class="layui-input" value="0">
+    </div>
+</script>
+
+<script type="text/html" id="check">
+    {% verbatim %}
+    {{# if(d.link_icon!=''){ }}
+    <a href="javascript:void(0);" data-value="{{ d.link_icon }}" lay-event="check" target="_blank">查看</a>
+    {{# }else{ }}
+    {{# } }}
+    {% endverbatim %}
+</script>
+
+
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'form', 'table'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form, table = layui.table,
+            tableIns;
+        tableIns = table.render({
+            elem: '#layui-table'
+            , url: '{% url "friend_link_list" %}' //数据接口
+            , page: true //开启分页
+            , where: {
+                link_id: $("#link_id").val(),
+                open_mode: $(".open-mode-select").val(),
+                link_name: $("#link-name").val(),
+                status: $("#status-select").val()
+            }
+            , cols: [[ //表头
+                {width: 120, field: 'link_id', title: 'ID'}
+                , {width: 180, field: 'link_name', title: '链接名称'}
+                , {width: 300, field: 'link_url', title: '链接地址'}
+                , {field: 'link_describe', title: '描述'}
+                , {
+                    width: 180, field: 'open_mode', title: '打开方式', templet: function (d) {
+                        return d.open_mode === 0 ? '新标签打开' : '本窗口打开';
+                    }
+                }
+
+                , {width: 120, toolbar: '#check', title: '图片'}
+                , {
+                    width: 120, field: 'status', title: '状态', templet: function (d) {
+                        return d.status === 0 ? '显示' : '隐藏';
+                    }
+                }
+                , {width: 250, toolbar: '#action', title: '操作', templet: '#action'}
+            ]]
+        });
+
+        $("#tableIns").click(function () {
+            tableIns.reload({
+                url: '{% url "friend_link_list" %}' //数据接口
+                , where: {
+                    link_id: $("#link_id").val(),
+                    open_mode: $(".open-mode-select").val(),
+                    link_name: $("#link-name").val(),
+                    status: $("#status-select").val()
+                }
+                , page: {
+                    page: 1
+                }
+            })
+        });
+
+
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('你确定真的删除吗？', function (index) {
+                    $.post("{% url 'friend_link_delete' %}", {link_id: data.link_id}, function (result) {
+                        if (result.code === 1) {
+                            layer.alert(result.msg, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(result.msg)
+                        }
+                    });
+                    return false;
+                });
+            } else if (obj.event === 'edit') {
+                window.location.href = "{% url 'friend_link_edit' %}?link_id=" + data.link_id + ""
+            } else if (obj.event === 'status') {
+                $.post("{% url 'friend_link_status' %}", {
+                    link_id: data.link_id,
+                    status: data.status
+                }, function (result) {
+                    if (result.code === 1) {
+                        layer.alert(result.msg, function () {
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.alert(result.msg)
+                    }
+                });
+                return false;
+            } else if (obj.event === 'check') {
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    skin: 'layui-layer-nobg', //没有背景色
+                    shadeClose: true,
+                    content: "<img src='" + obj.data.link_icon + "' style='width: 100%;height: 100%'/>"
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{{ site_title|default:_('PyCMS后台管理') }}{% endblock %}</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    {% block basestyle %}
+        <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all"/>
+        <link rel="stylesheet" href="{% static 'admin_c/css/global.css' %}" media="all"/>
+        <link rel="stylesheet" href="{% static 'admin_c/common/css/font.css' %}" media="all"/>
+    {% endblock %}
+
+    {% block extrastyle %}{% endblock %}
+    {% block extrahead %}{% endblock %}
+</head>
+<body class="skin-0">
+{% block content %}
+    主要信息部分
+{% endblock %}
+{% block basejavascript %}
+    <script type="text/javascript" src="{% static 'layui/layui.js' %}"></script>
+{% endblock %}
+{% block extrajavascript %}
+{% endblock %}
+</body>
+</html>

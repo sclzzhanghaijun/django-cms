@@ -1,0 +1,158 @@
+{% extends 'admin/admin_base.html' %}
+{% block extrastyle %}
+    <style type="text/css">
+        .layui-table td {
+            padding: 3px 10px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li class=""><a href="{% url 'admin_group_list' %}">后台管理组列表</a></li>
+                <li class=""><a href="{% url 'admin_group_add' %}">后台管理组添加</a></li>
+                <li class="layui-this">后台管理组权限</li>
+            </ul>
+            <div class="layui-tab-item layui-show" style="margin-top: 10px">
+                <form class="layui-form form-container" action="" method="post">
+                    <input type="hidden" name="group_id" value="{{ group_info.group_id }}">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>菜单名称</th>
+                            <th>默认路由</th>
+                            <th>权限路由</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in menu_list %}
+                            <tr>
+                                <td width="200px">
+                                    {% if row.m_pid != 0 %}
+                                        ├─
+                                    {% endif %}
+                                    <input type="checkbox"
+                                           class="menu_checkbox menu_{{ row.menu_id }} parent_menu_id_{{ row.m_pid }}"
+                                           value="{{ row.menu_id }}" name=""
+                                           data-value="{{ row.menu_id }}-{{ row.m_pid }}"
+                                           lay-skin="primary"
+                                           title="{{ row.menu_name }}" lay-filter="filter">
+                                </td>
+                                <td width="150px">
+                                    {% if row.default_route != '' %}
+                                        <input type="checkbox"
+                                               class="r_{{ row.menu_id }}_{{ row.default_route }} default_route_{{ row.menu_id }}-{{ row.m_pid }} menu_id_{{ row.menu_id }} parent_menu_id_{{ row.m_pid }}"
+                                               name="route_{{ row.menu_id }}"
+                                               value="{{ row.default_route }}"
+                                               data-value="{{ row.menu_id }}-{{ row.m_pid }}"
+                                               lay-skin="primary"
+                                               title="{{ row.default_route_name }}"
+                                               lay-filter="filter">
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.default_route != '' %}
+                                        {% for i,v in row.permission_route_name_list %}
+                                            {% if row.default_route != i %}
+                                                <input type="checkbox"
+                                                       class="r_{{ row.menu_id }}_{{ i }} route_{{ row.menu_id }}-{{ row.m_pid }} menu_id_{{ row.menu_id }}  parent_menu_id_{{ row.m_pid }}"
+                                                       name="route_{{ row.menu_id }}"
+                                                       value="{{ i }}"
+                                                       data-value="{{ row.menu_id }}-{{ row.m_pid }}"
+                                                       lay-skin="primary"
+                                                       title="{{ v }}" lay-filter="filter">
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        layui.use(['table', 'form', 'layedit', 'laydate', 'jquery'], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , layedit = layui.layedit
+                , laydate = layui.laydate
+                , $ = layui.jquery
+                , table = layui.table;
+            form.on('submit(demo1)', function (data) {
+                $.post("{% url 'admin_group_permission' %}", $('.layui-form').serialize(), function (result) {
+                    if (result.code !== 1) {
+                        layer.msg(result.msg)
+                    } else {
+                        layer.alert(result.msg, function () {
+                            window.location.href = "{% url 'admin_group_list' %}";
+                        });
+                    }
+                });
+                return false;
+            });
+            form.on('checkbox(filter)', function (data) {
+                if ($(data.elem).hasClass('menu_checkbox')) {
+                    var menu_id = data.elem.value;
+                    if (data.elem.checked) {
+                        $('.menu_id_' + menu_id).prop('checked', 'checked');
+                        $('.parent_menu_id_' + menu_id).prop('checked', 'checked');
+                    } else {
+                        $('.menu_id_' + menu_id).prop('checked', false);
+                        $('.parent_menu_id_' + menu_id).prop('checked', false);
+                    }
+                } else {
+                    var menu_mpid = $(data.elem).attr('data-value');
+                    var menu_mpid_list = menu_mpid.split('-');
+                    var menu_id = menu_mpid_list[0];
+                    var m_pid = menu_mpid_list[1];
+                    var select_all = false;
+                    if ($('.route_' + menu_mpid + ':checked').length === $('.route_' + menu_mpid).length) {
+                        select_all = true;
+                    }
+                    if (data.elem.checked) {
+                        $('.default_route_' + menu_mpid).prop('checked', 'checked');
+                        if (select_all === true) {
+                            $('.menu_id_' + menu_id).prop('checked', 'checked');
+                            $('.menu_' + menu_id).prop('checked', 'checked');
+                        }
+                    } else {
+                        if ($('.route_' + menu_mpid + ':checked').length === 0) {
+                            $('.default_route_' + menu_mpid).prop('checked', false);
+                            $('.menu_id_' + menu_id).prop('checked', false);
+                        }
+                        $('.menu_' + menu_id).prop('checked', false);
+
+                        //这里处理默认路由
+                        if ($(data.elem).hasClass('default_route_' + menu_mpid)) {
+                            $('.route_' + menu_mpid).prop('checked', false);
+                        }
+                    }
+                }
+                form.render();
+            });
+            {% autoescape off %}
+                var menu_route_list = {{ menu_route_list }};
+            {% endautoescape %}
+            for (var i in menu_route_list) {
+                var route = menu_route_list[i]
+                for (var j in route) {
+                    var className = '.r_' + i + '_' + route[j];
+                    $(className).prop("checked", 'checked');
+                }
+            }
+            form.render();
+        });
+    </script>
+{% endblock %}

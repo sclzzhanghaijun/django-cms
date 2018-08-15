@@ -1,0 +1,132 @@
+{% load i18n static %}<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{{ title }}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <meta name="renderer" content="webkit">
+    <meta name="author" content="pythoncms">
+    <link rel="icon" type="image/x-icon" href="{% static 'home/images/icon.ico' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'home/css/public.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'home/css/pageNav.css' %}">
+    <link href="{% static 'home/css/login.css' %}" rel="stylesheet" type="text/css"/>
+    {% block style %}{% endblock %}
+    <script language="javascript" type="text/javascript" src="{% static 'home/js/jquery-1.11.1.min.js' %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static 'home/js/popwin.js' %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static 'home/js/pageNav.js' %}"></script>
+</head>
+<body>
+<header id="top" role="banner" class="transition">
+    <div class="container">
+        <div class="navbar-header transition">
+            <a href="{% url 'home.index' %}" title="首页"><img src="{% static 'home/images/logo.jpg' %}" alt="首页"
+                                                             title="首页"/></a>
+        </div>
+        <ul class="nav navbar-nav navbar-left" id="jsddm"></ul>
+        <div class="ring-up" id="already-login" style="display: none">
+            <img src="{% static 'home/sy-img/touxiang.jpg' %}">
+            <span>&nbsp;</span>
+            <a class="login-out" href="javascript:void(0)">退出</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right transition main_nav" style="display: none">
+            <li class="login-or-register">
+            <li class="login-link-box"><a class="cd-signin">登录</a></li>
+            <li><a class="cd-signup">注册</a></li>
+            </li>
+        </ul>
+    </div>
+    <div class="cd-user-modal">
+        <div class="cd-user-modal-container">
+            <div id="cd-login"> <!-- 登录表单 -->
+                <div class="modal-alert-title">登录</div>
+                <div class="register">
+                    <div class="register-con" id="rc">
+                        <div class="login-form username-box " style="margin-top:20px;">
+                            <label class="login-label transition">
+                                <input id="login_username" class="login-input" placeholder="请输入用户名或邮箱">
+                            </label>
+                            <label class="login-label">
+                                <input id="login_password" class="login-input password" type="password"
+                                       placeholder="输入6～24位密码">
+                            </label>
+                            <span class="string-message message-login">&nbsp;</span>
+                            <div class="login-operation">
+                                <label><input id="autologin" type="checkbox">&nbsp;1周内自动登录</label>
+                                <a href="{% url 'home.reset_password' %}" class="js-forget-passward pull-right">忘记密码</a>
+                            </div>
+                            <button class="js-btn-login btn-login">登&nbsp;录</button>
+                        </div>
+                        <div class="js-open-register register-text">注册</div>
+                    </div>
+                </div>
+            </div>
+            <div id="cd-signup"> <!-- 注册表单 -->
+                <div class="modal-alert-title">邮箱注册</div>
+                <div class="user-register-box">
+                    <div class="login-form sms-box">
+                        <label class="login-label">
+                            <input class="login-input username" name="email" placeholder="邮箱"></label>
+                        <label class="login-label">
+                            <input id="register_password" class="login-input password" name="register_password"
+                                   type="password"
+                                   placeholder="输入6～24位密码">
+                        </label>
+                        <label class="login-label captcha"><input class="login-input" placeholder="输入6位验证码"
+                                                                  maxlength="6" name="register_code">
+                            <span class="js-btn-captcha btn-captcha get-register-code">获取验证码</span></label>
+                        <span class="string-message message-register">&nbsp;</span>
+                        <button class="js-btn-sms-login btn-login register-btn">注&nbsp;册</button>
+                    </div>
+                    <div class="js-user-login register-text">已有账号，立即登录</div>
+                </div>
+            </div>
+            <a href="#0" class="cd-close-form ">关闭</a>
+        </div>
+    </div>
+</header>
+<div class="placeholder-height"></div>
+<div class="contert-container">
+    {% block content %}
+        主要信息部分
+    {% endblock %}
+</div>
+<footer class="footer">
+    <div class="modal-backdrop fade in js-modal-backdrop"></div>
+    <div class="container copy-right">
+        <div class="footer-tag-list">
+            <a href="#" target="_blank" class="transition">关于我们</a>
+            <a href="#" target="_blank" class="transition">加入我们</a>
+            <a href="#" target="_blank" class="transition">合作伙伴</a>
+            <a href="#" target="_blank" class="transition">广告及服务</a>
+            <a href="#" target="_blank" class="transition">常见问题解答</a>
+            <a href="#" target="_blank" class="transition">防网络诈骗专题</a>
+        </div>
+        <span>Copyright © 2018</span>
+    </div>
+</footer>
+<script>
+    var globalVariable = {
+        'login_status_and_load_menu': "{% url 'home.login_status_and_load_menu' %}",
+        'go_to_contribute': '{% url "home.contribute" %}',
+        'submit_login_url': '{% url "home.user_login" %}',
+        'send_email_url': '{% url "home.register_mail" %}',
+        'register_url': '{% url "home.register" %}',
+        'logout_url': '{% url "home.logout" %}',
+        'login_status': false,
+        'default_avatar': '{% static "home/sy-img/default.jpg" %}',
+        'hotarticle_url': '{% url "home.hotarticle" %}',
+        'article_url': '{% url "home.article" %}',
+        'default_hotarticle_thumb': [
+            '{% static "home/images/default01.jpg" %}',
+            '{% static "home/images/default02.jpg" %}',
+            '{% static "home/images/default03.jpg" %}'
+        ]
+    };
+</script>
+{% block javascript %}{% endblock %}
+<script language="javascript" type="text/javascript" src="{% static 'home/js/main.js' %}"></script>
+{% block extrajavascript %}{% endblock %}
+</body>
+</html>

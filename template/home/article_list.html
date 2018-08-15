@@ -1,0 +1,77 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block content %}
+    <div class="article-section-wrap">
+        <div class="article-section" data-aid="197460">
+            <div class="container" id="article197460">
+                <div class="nrtj-wrap" id="nrtj-wrap197460"></div>
+                <div class="wrap-left pull-left">
+                    {% for row in article_lists %}
+                        <div class="mod-b mod-art" data-aid="213665">
+                            <div class="mod-thumb ">
+                                <a class="transition" title="{{ row.article_title }}"
+                                   href="{% url 'home.article' %}?article_id={{ row.article_id }}" target="_blank">
+                                    <img class="lazy" {% if row.thumb == "" %}
+                                         src="{% static 'home/sy-img/111527830443.jpg' %}"
+                                    {% else %}
+                                         src="{{ row.thumb }}"
+                                    {% endif %}
+
+                                         alt="{{ row.article_title }}">
+                                </a>
+                            </div>
+                            <div class="mob-ctt">
+                                <h2><a href="{% url 'home.article' %}?article_id={{ row.article_id }}"
+                                       class="transition msubstr-row2"
+                                       target="_blank">{{ row.article_title }}</a></h2>
+                                <div class="mob-author">
+                                    <div class="author-face">
+                                        <img src="{{ row.avatar }}">
+                                    </div>
+                                    <span class="author-name ">{{ row.user_id }}</span>
+                                    <span class="time">{{ row.created_time }}</span>
+                                    <i class="icon icon-cmt"></i><em>{{ row.comment }}</em>
+                                    <i class="icon icon-fvr"></i><em>{{ row.views }}</em>
+                                </div>
+                                <div class="mob-sub">{{ row.article_abstract }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if article_lists %}
+                        <nav aria-label="Page navigation" class="page-nav-outer" id="PageNavId"></nav>
+                    {% endif %}
+                </div>
+                <div class="wrap-right pull-right">
+                    <div class="box-moder hot-article">
+                        <h3>热文</h3>
+                        <span class="span-mark"></span>
+                        <ul id="hot_article"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="article-section article-section-last"></div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        var pageNavObj = null;//用于储存分页对象
+        pageNavObj = new PageNavCreate("PageNavId", {
+            pageCount: {{ allpage }},//总页数
+            currentPage: {{ pageindex }},//当前页
+            perPageNum: 5,//每页按钮数(非必须,默认5)
+            get_Url: "/article_list?type={{ type }}&"
+        });
+        pageNavObj.afterClick(pageNavCallBack);
+
+        function pageNavCallBack(clickPage) {
+            pageNavObj = new PageNavCreate("PageNavId", {
+                pageCount: {{ allpage }},
+                currentPage: clickPage,
+                perPageNum: 5,
+                get_Url: "/article_list?type={{ type }}&"
+            });
+            pageNavObj.afterClick(pageNavCallBack);
+        }
+    </script>
+{% endblock %}

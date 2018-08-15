@@ -1,0 +1,51 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block content %}
+    <div class="article-section-wrap">
+        <div class="article-section" data-aid="197460">
+            <div class="container" id="article197460">
+                <div class="nrtj-wrap" id="nrtj-wrap197460"></div>
+                <div class="wrap-left pull-left">
+
+                    {% for topic in data %}
+                        <div class="mod-b mod-art" data-aid="213665"
+                             style="height:auto;padding-top: 15px;padding-bottom: 15px">
+                            <div class="mod-thumb " style="width: 72px;height: 72px">
+                                <img class="lazy" src="{{ topic.avatar }}"
+                                     style="width: 100%;height: 100%">
+                            </div>
+                            <div class="mob-ctt" style="width:680px;margin-left: -30px;margin-top: -70px">
+                                <h2><a href="{% url 'home.topic_detail' %}?topic_id={{topic.topic_id}}" class="transition msubstr-row2"
+                                       target="_blank">{{ topic.topic_title }}</a></h2>
+                                <div class="mob-author">
+                                    <span class="author-name" style="margin-left: 0">{{ topic.author_name }}</span>
+                                    <span class="time">{{ topic.create_time|date:'Y-m-d H:m:s' }}</span>
+                                    <i class="icon icon-cmt"></i><em>{{ topic.comment_num }}</em>
+                                    <i></i><em>阅读量：{{ topic.view_num }}</em>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <nav class="page-nav">
+                        <ul class="pagination">
+                            {{ pager_str|safe }}
+                        </ul>
+                    </nav>
+                </div>
+                <div class="wrap-right pull-right">
+
+                    <a class="btn btn-warning btn-block" href="{% url 'home.topic_add' %}"><i class="fa fa-plus"></i> 发表话题</a>
+
+
+                    <div class="box-moder hot-article">
+                        <h3>热文</h3>
+                        <span class="span-mark"></span>
+                        <ul id="hot_article"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="article-section article-section-last"></div>
+    </div>
+{% endblock %}

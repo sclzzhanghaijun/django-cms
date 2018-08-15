@@ -1,0 +1,243 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'home/webuploader/webuploader.css' %}">
+    <style>
+        .control-label {
+            position: inherit;
+        }
+
+        .form-box {
+            margin: 50px 0 100px 0;
+        }
+
+        .webuploader-container {
+            margin-top: 27px;
+        }
+        .form-group {
+            padding-bottom: 40px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="container per_center_body" id="per_center">
+    <div id="menu" name="menu"></div>
+    <div class="user-menu-warp">
+        <div class="menu-warp">
+            <ul id=myTabs1>
+                <li class="{% if type == 'info' %}active{% endif %}"><a href="{% url 'home.member' %}?type=info">我的信息</a></li>
+                <li class="{% if type == 'article' %}active{% endif %}"><a href="{% url 'home.member' %}?type=article">我的文章</a></li>
+                <li class="{% if type == 'comment' %}active{% endif %}"><a href="{% url 'home.member' %}?type=comment">我的评论</a></li>
+            </ul>
+        </div>
+        <div class="user-content-warp"{% if type != 'info' %}style="display:none"{% endif %} id=myTabs1_Content0>
+            <div class="product-html-box">
+                <div class="message-box">
+                    <ul>
+                        <li type="article">
+                            <div class="cy-mod-thumb">
+                                <a class="transition" href="#" target="_blank"><img class="lazy"
+                                                                                    src="{% if user_info.avatar == '' %}{% static 'home/images/1461314509617354.png' %}{% else %}{{ user_info.avatar }}{% endif %}"
+                                                                                    alt="头像"></a>
+                            </div>
+                            <div class=" cy-mob-ctt">
+                                <div class="cp-name"><a href="#" class="transition" target="_blank">{{ user_info.nickname }}</a>&nbsp;&nbsp;&nbsp;<a
+                                        style="font-size: small; text-decoration: underline"
+                                        onclick="editInfo()">修改个人资料</a></div>
+                                <div class="cp-time">{{ user_info.email }}</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--修改个人资料-->
+        <div class="user-content-warp"style="display:none" id="editInfo">
+            <div class="product-html-box">
+                <div class="form-box">
+                    <div class="form-group" style="padding-bottom: 100px">
+                        <div class="col-sm-10">
+                            <label class="col-sm-2 control-label">个人头像</label>
+                            <div class="col-sm-2" style="padding: 0">
+                                <img src="{% static 'admin_c/images/default.png' %}" id="default">
+                                <input type="hidden" name="thumb">
+                            </div>
+                            <div class="col-sm-2" style="width: auto">
+                                <div id="filePicker">选择图片</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nickname" class="col-sm-2 control-label">用户昵称</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="nick_name" class="form-control" id="nickname" value="{{ user_info.nickname }}"
+                               placeholder="请输入用户昵称">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">电话</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="nick_name" class="form-control" id="phone" value="{% if user_info.phone != 'None' %}{{ user_info.phone }}{% endif %}"
+                               placeholder="请输入电话">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                    <label class="col-sm-2 control-label">性别</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" name="gender" id="gender">
+                            {% if user_info.gender == "female" %}<option value="female">女</option><option value="male">男</option>{% endif %}
+                            {% if user_info.gender == "male" %}<option value="male">男</option>}<option value="female">女</option>{% endif %}
+                        </select>
+                    </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-1 col-sm-10">
+                            <input type="hidden" name="status" value="0">
+                            <button type="button" class="btn btn-primary" onclick="sumit()">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="user-content-warp" {% if type != 'article' %}style="display:none"{% endif %} id=myTabs1_Content1>
+            <div class="message-box">
+                {% for obj in list %}
+                <div class="mod-b mod-art ">
+                    <a class="transition" href="/article/197460.html?f=member_article" target="_blank">
+                        <div class="mod-thumb"><img class="lazy" src="{% if obj.thumb %}{{ obj.thumb }}{% else %}{% static 'home/images/ad1.jpg' %}{% endif %}"
+                                                    alt="{{ obj.article_title }}" style="display: inline;">
+                        </div>
+                    </a>
+                    <div class="mob-ctt">
+                        <h3><a href="{% url 'home.article' %}?article_id={{ obj.article_id }}" class="transition" target="_blank">{{ obj.article_title }}</a>
+                        </h3>
+                        <div class="mob-author"><span class="time">{{ obj.created_time|date:"Y:m:d H:i:s" }}</span></div>
+                        <div class="mob-sub">{{ obj.article_abstract }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+                <nav class="page-nav">
+                    <ul class="pagination">
+                        {% if page.has_previous %}
+                        <li>
+                            <a href="{% url 'home.member' %}?type=article&page={{ page.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if page.paginator.count != 0 %}
+                        {% for pg in page.paginator.page_range %}
+                            {% if page.number == pg %}
+                                <li class="active"><a href="{% url 'home.member' %}?type=article&page={{ pg }}">{{ pg }}</a></li>
+                            {% else %}
+                                <li><a href="{% url 'home.member' %}?type=article&page={{ pg }}">{{ pg }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        <li>暂无数据</li>
+                        {% endif %}
+                        {% if contacts.has_next %}
+                        <li>
+
+                            <a href="{% url 'home.member' %}?type=article&page={{ page.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="user-content-warp" {% if type != 'comment' %}style="display:none"{% endif %} id=myTabs1_Content2>
+            <div class="message-box" id=myTabs2_Content0>
+                <ul>
+                    {% for obj in list %}
+                    <li type="comment">
+                        <div class="message-title">{{ obj.comment_content }}
+                        </div>
+                        <div class="message-time">{{ obj.created_time|date:"Y:m:d H:i:s" }}<span class="message-article">来自文章：{{ obj.article_from }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <nav class="page-nav">
+                    <ul class="pagination">
+                        {% if page.has_previous %}
+                        <li>
+                            <a href="{% url 'home.member' %}?type=comment&page={{ page.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if page.paginator.count != 0 %}
+                        {% for pg in page.paginator.page_range %}
+                            {% if page.number == pg %}
+                                <li class="active"><a href="{% url 'home.member' %}?type=comment&page={{ pg }}">{{ pg }}</a></li>
+                            {% else %}
+                                <li><a href="{% url 'home.member' %}?type=comment&page={{ pg }}">{{ pg }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        <li>暂无数据</li>
+                        {% endif %}
+                        {% if contacts.has_next %}
+                        <li>
+                            <a href="{% url 'home.member' %}?type=comment&page={{ page.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajavascript %}
+    <script type="text/javascript" src="{% static 'home/webuploader/webuploader.min.js' %}"></script>
+<script type="text/javascript">
+
+    function editInfo() {
+        document.getElementById('myTabs1_Content0').style.display='none';
+        document.getElementById('editInfo').style.display='block';
+        var uploader = WebUploader.create({
+            auto: true,
+            swf: "{% static 'home/webuploader/Uploader.swf' %}",
+            server: "{% url 'uploadfile' %}" + '?action=uploadimage&resource=home',
+            pick: '#filePicker',
+            fileVal: 'upfile',
+            accept: {
+                title: 'Images',
+                extensions: 'gif,jpg,jpeg,bmp,png',
+                mimeTypes: 'image/*'
+            }
+        });
+        uploader.on('uploadSuccess', function (file, info) {
+            if (info.state === 'SUCCESS') {
+                $("#default").attr('src', info.url).next().val(info.url);
+                return true;
+            }
+            alert(info.state);
+
+        });
+    }
+
+    function sumit() {
+        var nickname = $("#nickname").val();
+        var phone = $("#phone").val();
+        var gender = $("#gender").val();
+        var imgURL = $("#default").attr('src');
+        $.post("{% url 'home.edit_user_info' %}", {'nickname':nickname,'phone':phone,'gender':gender,'imgURL':imgURL}, function (result) {
+                if (result.code !== 1) {
+                    alert(result.msg);
+                } else {
+                    window.location.href = "{% url 'home.member' %}?type=info";
+                }
+            });
+        return false;
+    }
+</script>
+{% endblock %}

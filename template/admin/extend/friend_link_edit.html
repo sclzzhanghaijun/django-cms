@@ -1,0 +1,139 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="admin-main layui-anim layui-anim-upbit">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li><a href="{% url 'friend_link_list' %}">友情链接</a></li>
+            <li><a href="{% url 'friend_link_add' %}">添加链接</a></li>
+            <li class="layui-this"><a href="{% url 'friend_link_edit' %}">编辑链接</a></li>
+        </ul>
+
+        <form class="layui-form" action="{% url 'friend_link_edit' %}" method="post" enctype="multipart/form-data"
+              style="margin-top: 15px;">
+            <input type="hidden" name="link_id" value="{{ data.link_id }}">
+            <input type="hidden" name="status" value="{{ data.status }}">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">打开方式</label>
+                <div class="layui-input-inline">
+                    <select name="open_mode" lay-filter="open_mode" class="open-mode-select">
+                        <option value="0"
+                                {% if data.open_mode == 0 %}selected {% endif %}>新标签打开
+                        </option>
+                        <option value="1"
+                                {% if data.open_mode == 1 %}selected {% endif %}>本窗口打开
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">链接名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="link_name" required lay-verify="required" placeholder="请输入链接名称"
+                           autocomplete="off" class="layui-input link-name" value="{{data.link_name}}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">链接地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="link_url" required lay-verify="required" placeholder="请输入链接地址"
+                           autocomplete="off" class="layui-input link-url" value="{{data.link_url}}">
+                </div>
+
+
+            </div>
+            <div class="layui-form-item">
+
+                <div class="layui-input-block layui-upload">
+
+                    <div class="layui-upload">
+                        <button type="button" class="layui-btn" id="test1">上传图标</button>
+                        <input type="hidden" name="link_icon" class="link-icon" value="{{data.link_icon}}">
+                        <div class="layui-upload-list">
+                            <img class="layui-upload-img" id="demo1" src="{{data.link_icon}}">
+                            <p id="demoText"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    <textarea name="link_describe" placeholder="请输入描述" class="layui-textarea link-describe">{{data.link_describe}}</textarea>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="formDemo">提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+{% block extrajavascript %}
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'form', 'table', 'upload'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form, upload = layui.upload,
+            picture_url = '';
+        //提交表单
+        form.on('submit(formDemo)', function (data) {
+            var action = $('.layui-form').attr('action');
+            $.post(action, data.field, function (result) {
+                if (result.code == 1) {
+                    layer.alert(result.msg, function () {
+                        window.location.href = "{% url 'friend_link_list' %}"
+                    });
+                } else {
+                    layer.msg(result.msg);
+                }
+            });
+            return false;
+        });
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            , url: 'http://127.0.0.1:8000/api/ueditor/index?action=uploadimage&encode=utf-8'
+            , field: "upfile"
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function (index, file, result) {
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                }
+                $(".link-icon").val(res.url);
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    uploadInst.upload();
+                });
+            }
+        });
+    });
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'home/css/swiper.css' %}">
+    <style>
+        .swiper-container {
+            width: 100%;
+            height: 350px
+        }
+
+        .swiper-slide {
+            text-align: center;
+            font-size: 18px;
+            background: #fff;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .swiper-slide a {
+            text-align: center;
+            font-size: 1em;
+            height: 42px;
+            line-height: 42px;
+            color: #fafafa;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            font-weight: normal;
+            background-color: rgba(0, 0, 0, 0.3)
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container" id="index">
+        <div class="wrap-left pull-left">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    {% for item in banner_list %}
+                        <div class="swiper-slide">
+                                <img src="{{ item.picture_url }}">
+                            <a href="{{ item.href_url }}">{{ item.slide_title }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="swiper-button-next swiper-button-white"></div>
+                <div class="swiper-button-prev swiper-button-white"></div>
+            </div>
+            <div class="mod-info-flow">
+                {% for article in article_list %}
+                    <div class="mod-b mod-art" data-aid="213665">
+                        {% if article.views >= 20 %}
+                            <div class="mod-angle">热</div>
+                        {% endif %}
+                        <div class="mod-thumb ">
+                            <a class="transition" title="{{ article.article_title }}"
+                               href="{% url 'home.article' %}?article_id={{ article.article_id }}">
+                                <img class="lazy" src="{% if article.thumb != '' %}
+                            {{ article.thumb }}
+                            {% endif %}"
+                                     alt="{{ article.article_title }}">
+                            </a>
+                        </div>
+                        <div class="column-link-box">
+                            <a class="column-link" target="_blank">{{ article.category_name }}</a>
+                        </div>
+                        <div class="mob-ctt">
+                            <h2><a href="{% url 'home.article' %}?article_id={{ article.article_id }}"
+                                   class="transition msubstr-row2"
+                                   target="_blank">{{ article.article_title }}</a>
+                            </h2>
+                            <div class="mob-author">
+                                <div class="author-face">
+                                    <a href="#" target="_blank"><img src="{% if article.user_avatar != '' %}
+                                {{ article.user_avatar }}
+                                {% endif %}">
+                                    </a>
+                                </div>
+
+                                <span class="author-name " style="margin-left: 0">{{ article.user_nickname }}</span>
+                                <span class="time">{{ article.created_time|date:'Y-m-d H:i:s' }}</span>
+                                <i class="icon icon-cmt"></i><em>{{ article.comment }}</em>
+                                <i></i><em>阅读量：{{ article.views }}</em>
+                            </div>
+                            <div class="mob-sub">{{ article.article_abstract }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="wrap-right pull-right">
+            <div class="box-moder moder-story-list">
+                <h3>24小时</h3>
+                <span class="span-mark"></span>
+                <div class="story-box-warp hour-box-warp">
+                    <div class="nano">
+                        <div class="overthrow nano-content description" tabindex="0">
+                            <ul class="box-list mt-box-list">
+                                <!--公共24小时列表部分-->
+                                {% for val in user_article_list %}
+                                <li>
+                                    <div class="story-content">
+                                        <div class="mt-story-title js-story-title" story-data-show="true">
+                                            <p class="transition hour-arrow">
+                                                <span class="icon icon-caret js-mt-index-icon"></span>
+                                            </p>
+                                            <ul class="hour-head">
+                                                <li><img class="hour-tx" src="{% if obj.thumb %}{{ val.avatar }}{% else %}{% static 'home/sy-img/default.jpg' %}{% endif %}"
+                                                         alt="头像"></li>
+                                                <li>
+                                                    <p>{{ val.nickname }}</p>
+                                                    <p>{{ val.created_time|date:"Y:m:d H:i:s" }}</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="mt-index-info-parent">
+                                            <div class="story-info mt-story-info">
+                                                <p class="story-detail-hide hour-detail-hide mt-index-cont mt-index-cont2 js-mt-index-cont2">
+                                                    {{ val.article_abstract }}<a
+                                                        href="{% url 'home.article' %}?article_id={{ val.article_id }}" target="_blank"
+                                                        class="mt-index-cont2-a">[&nbsp原文&nbsp]</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="nano-pane">
+                            <div class="nano-slider" style="height: 179px; transform: translate(0px, 0px);"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="js-more-moment" data-cur_page="0"></div>
+            </div>
+            <div class="box-moder hot-article">
+                <h3>热文</h3>
+                <span class="span-mark"></span>
+                <ul id="hot_article"></ul>
+            </div>
+            <div class="placeholder"></div>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="box_moder friend-link-block">
+            <h4>友情链接</h4>
+            <span class="span-mark"></span>
+            <ul>
+                {% for link in friend_link %}
+                    <li><a href="{{ link.link_url }}"
+                           {% if link.open_mode == 0 %}target="_blank"{% endif %}>{{ link.link_name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <br/>
+
+{% endblock %}
+{% block extrajavascript %}
+    <script language="javascript" type="text/javascript" src="{% static 'home/js/swiper.min.js' %}"></script>
+    <script>
+        new Swiper('.swiper-container', {
+            autoplay: true,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev'
+            }
+        });
+        function banner_click(url) {
+            window.location.href=url
+        }
+    </script>
+{% endblock %}

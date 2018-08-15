@@ -1,0 +1,76 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <ul class="layui-tab-title">
+                <li class="layui-this"><a href="{% url 'admin_group_list' %}">后台管理组列表</a></li>
+                <li class=""><a href="{% url 'admin_group_add' %}">后台管理组添加</a></li>
+            </ul>
+            <table class="layui-hide" id="list" lay-filter="list"></table>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/html" id="status">
+        {% verbatim %}
+        {{#  if(d.group_status !== 0){ }}
+        <span style="color: #993300;">禁用</span>
+        {{#  } else { }}
+        启用
+        {{#  } }}
+        {% endverbatim %}
+    </script>
+    <script type="text/html" id="action">
+        {% verbatim %}
+        {{#  if(d.group_id === 1){ }}
+        --
+        {{#  } else { }}
+        <a href="{% endverbatim %}{% url 'admin_group_permission' %}{% verbatim %}?group_id={{ d.group_id }}"
+           class="layui-btn layui-btn-primary layui-btn-xs">分配权限</a>
+        <a href="{% endverbatim %}{% url 'admin_group_edit' %}{% verbatim %}?group_id={{ d.group_id }}"
+           class="layui-btn layui-btn-xs">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        {{#  } }}
+        {% endverbatim %}
+    </script>
+    <script type="text/javascript">
+        layui.use('table', function () {
+            var table = layui.table, $ = layui.jquery;
+            var tableIn = table.render({
+                id: 'user',
+                elem: '#list',
+                url: '{% url "admin_group_list" %}',
+                method: 'post',
+                page: true,
+                cols: [[
+                    {checkbox: true, fixed: true},
+                    {field: 'group_id', title: '用户组ID', width: 100, fixed: false},
+                    {field: 'group_name', title: '用户组名称'},
+                    {field: 'group_description', title: '用户组描述'},
+                    {field: 'group_status', width: 80, title: '状态', templet: '#status'},
+                    {field: 'create_time', width: 180, title: '添加时间'},
+                    {field: 'update_time', width: 180, title: '修改时间'},
+                    {width: 240, align: 'center', toolbar: '#action', title: '操作'}
+                ]],
+                limit: 10 //每页默认显示的数量
+            });
+
+            table.on('tool(list)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'del') {
+                    layer.confirm('真的删除该用户组吗？', function (index) {
+                        $.post("{% url 'admin_group_del' %}", data, function (result) {
+                            if (result.code === 0) {
+                                layer.msg(result.msg);
+                                layer.close(index);
+                            } else {
+                                window.location.reload();
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+
+{% endblock %}

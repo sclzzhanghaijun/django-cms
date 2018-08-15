@@ -1,0 +1,126 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="layui-card-body">
+        <div class="layui-tab" lay-filter="component-tabs-brief">
+            <ul class="layui-tab-title">
+                <li class="layui-this"><a href="javascript:void(0)">文章列表</a></li>
+                <li><a href="{% url 'article_add' %}">添加文章</a></li>
+            </ul>
+        </div>
+        <form class="layui-form layui-form-pane" action="{% url 'article_lists_data' %}" method="get">
+            <div class="layui-inline">
+                <label class="layui-form-label">文章标题</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="article_title" value="" placeholder="请输入文章标题" class="layui-input"
+                           id="article_title">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">文章分类</label>
+                <div class="layui-input-inline">
+                    <select name="category_id" lay-verify="required" id="deptSelect">
+                        <option value="0">全部分类</option>
+                        {% for item in category %}
+                            <option value="{{ item.category_id }}">{{ item.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">发布对象</label>
+                <div class="layui-input-inline">
+                    <select name="user_type" lay-verify="required" id="user_type">
+                        <option value="0">全部</option>
+                        <option value="1">管理员</option>
+                        <option value="2">会员</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">文章状态</label>
+                <div class="layui-input-inline">
+                    <select name="status" lay-verify="required" id="status">
+                        <option value="-1">全部</option>
+                        <option value="0">草稿状态</option>
+                        <option value="1">上线状态</option>
+                        <option value="2">下线状态</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" type="button" id="tableIns">搜索</button>
+            </div>
+        </form>
+        <div>
+            <table id="dataList" lay-filter="test"></table>
+        </div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script>
+        var layer, $, tableIns;
+        layui.use(['table', 'jquery', 'layer'], function () {
+            var table = layui.table;
+            $ = layui.jquery;
+            layer = layui.layer;
+            var editUrl = "{% url "article_edit" %}";
+            var delUrl = "{% url "article_delete" %}";
+            tableIns = table.render({
+                elem: '#dataList'
+                , url: '{% url "article_lists_data" %}'
+                , where: {
+                    article_title: $("input[name='article_title']").val(),
+                    category_id: $("#deptSelect").val(),
+                    user_type: $("#user_type").val(),
+                    status: $("#status").val()
+                }
+                , page: true //开启分页
+                , cols: [[ //表头
+                    {field: 'article_id', title: '文章ID'}
+                    , {field: 'article_title', title: '文章标题'}
+                    , {field: 'category_name', title: '所属分类'}
+                    , {field: 'user_type', title: '发布对象'}
+                    , {field: 'status', title: '文章状态'}
+                    , {field: 'views', title: '浏览量'}
+                    , {field: 'comment', title: '评论数'}
+                    , {field: 'created_time', title: '创建时间'}
+                    , {
+                        field: 'article_id', title: '操作', templet: function (d) {
+                            return '<a href="' + editUrl + '?article_id=' + d.article_id + '" class="layui-table-link">编辑</a> &nbsp;&nbsp;' +
+                                '<a  onclick="del(this)" href="javascript:void(0)" data-value="' + delUrl + '?article_id=' + d.article_id + '" class="layui-table-link del">删除</a>'
+                                +
+                                '&nbsp;&nbsp;<a href="{% url 'article_comment_list' %}?art_id=' + d.article_id + '" class="layui-table-link">评论管理</a>'
+                        }
+                    }
+                ]]
+            });
+            $("#tableIns").click(function () {
+                tableIns.reload({
+                    where: {
+                        article_title: $("#article_title").val(),
+                        category_id: $("#deptSelect").val(),
+                        user_type: $("#user_type").val(),
+                        status: $("#status").val()
+                    }
+                    , page: {
+                        page: 1
+                    }
+                })
+            });
+
+        });
+
+        function del(self) {
+            layer.confirm('您确定要删除吗？', function () {
+                $.get($(self).attr('data-value'), function (info) {
+                    if (info.code === 1) {
+                        layer.closeAll();
+                        tableIns.reload();
+                        return;
+                    }
+                    layer.msg(info.msg);
+                })
+            });
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'home/base.html' %}
+{% load i18n static %}
+{% block content %}
+    <div class="article-section-wrap">
+        <div class="article-section" data-aid="197460">
+            <div class="container" id="article197460">
+                <div class="nrtj-wrap" id="nrtj-wrap197460"></div>
+                <div class="wrap-left pull-left">
+                    <div class="article-wrap">
+                        <h1 class="t-h1">{{ model.article_title }}</h1>
+                        <div class="article-author">
+                            <span class="author-name">{{ model.username }}</span>
+                            <div class="column-link-box">
+                                <span class="article-time pull-left">{{ model.created_time }}</span>
+                                <span class="article-share pull-left">阅读 {{ model.views }}</span>
+                                <span class="article-pl pull-left">评论 {{ model.comment }}</span>
+                                <sapn class="column-link">{{ model.category_id }}</sapn>
+                                <i> </i>
+                            </div>
+                        </div>
+                        <!--管理员按钮-->
+                        <div class="article-manage-bar" id="article-manage-bar197460"></div>
+                        {{ model.article_content |safe }}
+                        <!--文章头图-->
+
+                        <!--管理员底部按钮-->
+                        <div class="article-manage-bar article-bottom-manage-bar"
+                             id="article-bottom-manage-bar197460"></div>
+
+                        <!--公共评论-->
+                        <div class="pl-wrap" id="pl-wrap-article197460" name="pl-wrap-article">
+                            <div class="pl-form-wrap">
+                                <span class="span-mark-author active">发表评论</span>
+                                <div class="pl-form-box pl-article-wrap">
+                                    <div class="no-login-box hide" id="login_comment"><a
+                                            class="js-login js-login-sl">登录</a>后参与评论
+                                    </div>
+                                    <form id="form_comment" method="post" action="" class="hide">
+                                        <input type="hidden" name="art_id" value="{{ model.article_id }}">
+                                        <input type="hidden" name="reply_comment_id" value="0">
+                                        <textarea class="form-control" id="saytext197460" name="comment_content"
+                                                  placeholder="客官，8个字起评，不讲价哟"></textarea>
+                                        <!--普通文章评论发表-->
+                                        <button class="btn btn-article js-login transition " id="submit">发表</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div id="pl-wrap197460" name="pl-wrap"></div>
+                            <div class="pl-list-wrap">
+                                <div class="pl-loading hide"><img src="/static_2015/img/pl-loading.gif"></div>
+                                <a href="javascript:void(0)" class="span-mark-author active js-default-new-pl"
+                                   data-type="agree">文章评论</a>
+                                {#                                <i class="icon icon-line-pl"></i>#}
+                                {#                                <a href="javascript:void(0)" class="span-mark-author new js-default-new-pl"#}
+                                {#                                   data-type="dateline">最新评论</a>#}
+                                <div id="article_comment_con"></div>
+
+                            </div>
+                        </div>
+                        <!--相关文章位置-->
+                        <div id="related-article-wrap197460"></div>
+                    </div>
+                </div>
+                <div class="wrap-right pull-right">
+
+                    <div class="placeholder"></div>
+                    <div class="box-moder hot-article">
+                        <h3>热文</h3>
+                        <span class="span-mark"></span>
+                        <ul id="hot_article">
+
+                        </ul>
+                        <ul id="hot_article"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="article-section article-section-last"></div>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: '/hotarticle',
+            success: function (dt) {
+                html = '';
+                $.each(dt, function (key, value) {
+                    html += '<li>';
+                    html += '<div class="hot-article-img">';
+                    html += '<a href="{% url 'home.article' %}?article_id=' + value.article_id + '" target="_blank">';
+                    if (value.thumb == "") {
+                        html += '<img src="/static/home/sy-img/111527830443.jpg">';
+                    }
+                    else {
+                        html += '<img src="' + value.thumb + '">';
+                    }
+                    html += '</a>';
+                    html += '</div>';
+                    html += '<a href="{% url 'home.article' %}?article_id=' + value.article_id + '" class="transition" target="_blank">' + value.article_title + '</a>';
+                    html += '</li>';
+                });
+                $("#hot_article").html(html);
+            },
+            error: function () {
+                alert("服务器错误");
+            }
+        });
+
+        if (globalVariable.login_status == true) {
+            $("#form_comment").removeClass("hide");
+            $("#login_comment").addClass("hide");
+        } else {
+            $("#form_comment").addClass("hide");
+            $("#login_comment").removeClass("hide");
+        }
+
+        $("#submit").on('click', function () {
+            var $from = $("form");
+            $.ajax({
+                url: "{% url 'home.add_article_comment' %}",
+                type: $from.attr('method'),
+                data: $from.serialize(),
+                success: function (info) {
+                    alert(info.msg);
+                    if (info.code === 1) {
+                        location.reload();
+                        return;
+                    }
+                }
+            });
+            return true
+        });
+
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: '/article_comment',
+            data: {art_id: {{ model.article_id }}},
+            success: function (dt) {
+                html = '';
+                $.each(dt[0], function (key, value) {
+                    html += '<div class="pl-box-wrap">';
+                    html += '<div class="pl-box-top">';
+                    html += '<div class="author-info">';
+                    html += '<div class="author-face">';
+                    html += '<img  src="' + value.avatar + '">';
+                    html += '</div>';
+                    html += '<span class="author-name">';
+                    html += '<a href="#">' + value.user_id + '</a>';
+                    html += '</span>';
+                    html += '<span class="time">' + value.created_time + '</span>';
+                    html += '</div>';
+                    html += '<div class="pl-content">' + value.comment_content + '</div>';
+                    if (dt[1][value.article_comment_id] != "") {
+                        html += '<div class="dp-box">';
+                        html += '<span class="span-mark-author">点评</span>';
+
+                        $.each(dt[1][value.article_comment_id], function (keyc, valuec) {
+                            html += '<div class="dl-user dl-user-list  " data-type="dl-user" style="display:block">';
+                            html += '<ul>';
+                            html += '<li class="del-pl108924">';
+                            html += '<a href="#" target="_blank">';
+                            html += '<img src="' + valuec.avatar + '"></a>';
+                            html += '</li>';
+                            html += '</ul>';
+                            html += '<div class="one-pl-content one-pl-content-box">';
+                            html += '<div class="pull-right time">' + valuec.created_time + '</div>';
+                            html += '<p class="content">';
+                            html += '<span class="name">' + valuec.user_id + '</span>';
+                            html += '<a href="#" target="_blank"></a>&nbsp;&nbsp;';
+                            html += '<span class="author-content">' + valuec.comment_content + '</span>';
+                            html += '</p>';
+                            html += '</div>';
+                            html += '</div>';
+                        });
+
+                        html += '</div>';
+
+                    }
+                    html += '</div>';
+                    html += '<div class="pl-box-btm">';
+                    html += '<div class="btn-dp transition js-add-dp-box" onclick="addcommentbox(this)"><i class="icon icon-dp"></i>我要点评';
+                    html += '</div>';
+                    html += '<div class="pl-form-box dp-article-box">';
+                    {#html += '<form method="post" action="">';#}
+                    html += '<input type="hidden" name="art_id" value="{{ model.article_id }}">';
+                    html += '<input type="hidden" name="reply_comment_id" value="' + value.article_comment_id + '">';
+                    html += '<textarea class="form-control" placeholder="客官，8个字起评，不讲价哟"></textarea>';
+                    html += '<button class="btn btn-article js-article-dp" onclick="addcomment(this)">发表</button>';
+                    {#html += '</form>';#}
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+                $("#article_comment_con").html(html);
+            },
+            error: function () {
+                alert("服务器错误");
+            }
+        });
+
+        function addcommentbox(self) {
+            var htmlstr = $(self).siblings(".dp-article-box");
+            $(".dp-article-box").hide();
+            $(htmlstr).show();
+        }
+
+        function addcomment(self) {
+            var htmlstr = $(self).siblings("input");
+            art_id = htmlstr[0].value;
+            reply_comment_id = htmlstr[1].value;
+            var contentstr = $(self).siblings("textarea");
+            var content = contentstr[0].value;
+            $.ajax({
+                url: "{% url 'home.add_article_comment' %}",
+                type: "POST",
+                data: {art_id: art_id, comment_content: content, reply_comment_id: reply_comment_id},
+                success: function (info) {
+                    alert(info.msg);
+                    if (info.code === 1) {
+                        location.reload();
+                        return;
+                    }
+                }, error: function () {
+                    alert("服务器错误");
+                }
+            });
+        }
+    </script>
+{% endblock %}

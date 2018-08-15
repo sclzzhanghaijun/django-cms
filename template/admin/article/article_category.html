@@ -1,0 +1,60 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="admin-main layui-anim layui-anim-upbit">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this"><a href="{% url 'article_category' %}">分类列表</a></li>
+                <li><a href="{% url 'add_category' %}?category_id=-1">添加分类</a></li>
+            </ul>
+        </div>
+        <table class="layui-hide" id="list" lay-filter="list"></table>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+
+    <script type="text/html" id="action">
+        {#        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="creat_child">添加子分类</a>#}
+        <a class="layui-btn layui-btn-xs" lay-event="edit" onclick="edit_category(this)">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" onclick="delete_category(this)">删除</a>
+    </script>
+    <script type="text/javascript">
+        var $;
+        layui.use('table', function () {
+            var table = layui.table;
+            $ = layui.jquery;
+            var tableIn = table.render({
+                elem: '#list',
+                url: '{% url "article_category" %}',
+                method: 'post',
+                cols: [[
+                    {#{checkbox: true, fixed: true},#}
+                    {field: 'category_id', title: '分类ID', width: 100, fixed: false,},
+                    {field: 'category_name', title: '分类名称'},
+                    {toolbar: '#action', title: '操作'}
+                ]]
+            });
+        });
+
+        function delete_category(self) {
+            var htmlstr = $(self).parents("td").siblings("td[data-field='category_id']");
+            var id = htmlstr[0].textContent;
+            layer.confirm('确认要删除该分类吗？', function () {
+                $.post("{% url 'category_delete' %}", {category_id: id}, function (result) {
+                    if (result.code === 1) {
+                        layer.alert(result.msg, function () {
+                            window.location.reload();
+                        });
+                    } else {
+                        layer.alert(result.msg)
+                    }
+                });
+            });
+        }
+
+        function edit_category(self) {
+            var htmlstr = $(self).parents("td").siblings("td[data-field='category_id']");
+            var id = htmlstr[0].textContent;
+            window.location.href = "{% url 'add_category' %}?category_id=" + id;
+        }
+    </script>
+{% endblock %}

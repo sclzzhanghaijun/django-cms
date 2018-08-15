@@ -1,0 +1,69 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+<div class="admin-main layui-anim layui-anim-upbit">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li><a href="{% url 'slide_category_list' %}">轮播分类</a></li>
+            <li ><a href="{% url 'slide_add_category' %}">添加轮播分类</a></li>
+            <li class="layui-this"><a href="{% url 'slide_edit_category' %}">编辑轮播分类</a></li>
+        </ul>
+        <form class="layui-form commit-form" action="{% url 'slide_edit_category' %}" method="post" style="margin-top: 15px;">
+             <input type="hidden" name="category_id" value="{{ category_object.category_id }}">
+            <div class="layui-form-item">
+                <label class="layui-form-label">分类名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="category_name" required lay-verify="required" placeholder="请输入分类名称"
+                           autocomplete="off" class="layui-input category-name" value="{{ category_object.category_name }}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">分类标识</label>
+                <div class="layui-input-block">
+                    <input type="text" name="category_identify" required lay-verify="required"
+                           placeholder="请输入分类标识"
+                           autocomplete="off" class="layui-input category-indentify" value="{{ category_object.category_identify }}">
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-block">
+                    <textarea name="category_remark" placeholder="请输入内容" class="layui-textarea remark">{{ category_object.category_remark }}</textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="submit" class="layui-btn commit" lay-submit lay-filter="formDemo">提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+{% block extrajavascript %}
+<script type="text/javascript">
+
+    layui.use(['element', 'jquery', 'form', 'table'], function () {
+        var element = layui.element, layer = layui.layer, $ = layui.jquery, form = layui.form;
+        //提交表单
+        form.on('submit(formDemo)', function (data) {
+            var action = $('.layui-form').attr('action');
+            $.post(action, data.field, function (result) {
+                if (result.code == 1) {
+                    layer.alert(result.msg, function () {
+                       window.location.href = "{% url 'slide_category_list' %}";
+                    });
+
+                } else {
+                    layer.msg(result.msg);
+                }
+            });
+            return false;
+        });
+    });
+
+
+</script>
+{% endblock %}

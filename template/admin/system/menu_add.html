@@ -1,0 +1,291 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="admin-main layui-anim layui-anim-upbit">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li><a href="{% url 'menu_list' %}">菜单列表</a></li>
+                <li class="layui-this"><a href="{% url 'menu_add' %}">添加菜单</a></li>
+            </ul>
+        </div>
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">父级菜单</label>
+                <div class="layui-input-block">
+                    <select name="m_pid" lay-filter="m-pid">
+                        <option value="-1">一级菜单</option>
+                        {% for row in parent_menu_list %}
+                            <option value="{{ row.menu_id }}"
+                                    {% comment %}{% if pid == row.menu_id %}selected="selected"{% endif %}{% endcomment %}>{{ row.menu_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="menu_name" lay-verify="required" autocomplete="off"
+                           placeholder="请输入菜单名称"
+                           class="layui-input" value="">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">菜单描述</label>
+                <div class="layui-input-block">
+                    <textarea name="menu_description" placeholder="请输入菜单描述" class="layui-textarea"
+                              lay-verify="required"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="menu_status" value="on" title="正常" checked="">
+                    <input type="radio" name="menu_status" value="off" title="禁用">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单图标</label>
+                <div class="layui-input-block">
+                    <input type="text" name="menu_icon" lay-verify="" autocomplete="off"
+                           placeholder="请输入菜单图标 注意：一级菜单必须设置图标"
+                           class="layui-input" value="">
+                </div>
+            </div>
+            <div class="layui-form-item menu-type-block">
+                <label class="layui-form-label">菜单类型</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="menu_type" value="1" title="仅是菜单" lay-filter="menu_type" checked="">
+                    <input type="radio" name="menu_type" value="2" title="权限菜单" lay-filter="menu_type">
+                </div>
+            </div>
+            <div class="layui-form-item menu-permission-block" style="display: none;">
+                <label class="layui-form-label">菜单路由</label>
+                <div class="layui-input-block">
+                    <div>
+                        <button class="layui-btn layui-btn-xs layui-btn-normal select-permission" type="button">+选择权限
+                        </button>
+                    </div>
+                    <table class="layui-table" style="width: 50%;">
+                        <tr>
+                            <th width="85px">菜单默认权限</th>
+                            <th width="50px">权限ID</th>
+                            <th>权限名称</th>
+                            <th>权限别名</th>
+                            <th width="150px">操作</th>
+                        </tr>
+                        <tbody class="select-route-list-body"></tbody>
+                    </table>
+                    <input type="hidden" name="permission_route">
+                    <input type="hidden" name="default_route">
+                    <div>注意：这里需要选择该菜单下功能包含的所有路由，并需要指定一个默认路由供菜单默认显示页面</div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-block">
+                    <input type="text" name="sort" lay-verify="required" autocomplete="off"
+                           placeholder="请输入菜单的顺序，按照数字的升序来进排列菜单"
+                           class="layui-input" value="0">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="route-list" style="display: none;">
+        <form class="layui-form" action="">
+            <table class="layui-table">
+                <tr>
+                    <th width="60px">勾选</th>
+                    <th width="60px">路由ID</th>
+                    <th>路由名称</th>
+                    <th>路由别名</th>
+                    <th width="80px">--</th>
+                    <th width="60px">勾选</th>
+                    <th width="60px">路由ID</th>
+                    <th>路由名称</th>
+                    <th>路由别名</th>
+                </tr>
+                <tbody class="route-list-body"></tbody>
+            </table>
+        </form>
+    </div>
+{% endblock %}
+{% block extrajavascript %}
+    <script type="text/javascript">
+
+        layui.use(['form', 'layedit', 'laydate', 'jquery'], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , layedit = layui.layedit
+                , laydate = layui.laydate
+                , $ = layui.jquery;
+
+
+            //自定义验证规则
+            form.verify({
+                {% comment %}site_title: function (value) {
+                    if (value.length < 5) {
+                        return '标题至少得5个字符啊';
+                    }
+                },{% endcomment %}
+            });
+            var select_menu_type = 0;
+            form.on('radio(menu_type)', function (data) {
+                var menu_type = parseInt(data.value);
+                select_menu_type = menu_type;
+                if (menu_type === 2) {
+                    $('.menu-permission-block').show();
+                } else {
+                    $('.menu-permission-block').hide();
+                }
+            });
+
+            form.on('select(m-pid)', function (data) {
+                var m_pid = parseInt(data.value);
+                if (m_pid === -1) {
+                    $('.menu-type-block').show();
+                    if (select_menu_type === 2) {
+                        $('.menu-permission-block').show();
+                    } else {
+                        $('.menu-permission-block').hide();
+                    }
+                } else {
+                    $('.menu-type-block').hide();
+                    $('.menu-permission-block').show();
+                }
+            });
+
+            //监听提交
+            form.on('submit(demo1)', function (data) {
+                if (parseInt(data.field.m_pid) !== -1 || (parseInt(data.field.m_pid) === -1 && parseInt(data.field.menu_type) === 2)) {
+                    if (route_id_arr.length === 0) {
+                        layer.alert('请选择该菜单所包含的所有路由');
+                        return false;
+                    }
+                    if (default_route_id === 0) {
+                        layer.alert('请选择默认路由');
+                        return false;
+                    }
+                    $('input[name="permission_route"]').val(route_id_arr.join('|'));
+                    $('input[name="default_route"]').val(default_route_id);
+                } else {
+                    $('input[name="permission_route"]').val("");
+                    $('input[name="default_route"]').val("");
+                }
+                $.post("{% url 'menu_add' %}", $('.layui-form').serialize(), function (result) {
+                    if (result.code !== 1) {
+                        layer.msg(result.msg)
+                    } else {
+                        layer.alert(result.msg, function () {
+                            window.location.href = "{% url 'menu_list' %}";
+                        });
+                    }
+                });
+                return false;
+            });
+            var route_list = {{ route_list|safe }};
+            var route_list_new = {};
+            if (route_list) {
+                for (var i in route_list) {
+                    var route_info = route_list[i];
+                    route_list_new[parseInt(route_info['route_id'])] = route_info;
+                }
+            }
+            $(".select-permission").click(function () {
+                var html = '';
+                for (var i in route_list) {
+                    if (i % 2 === 0) {
+                        html += "<tr>";
+                    }
+                    if (i % 2 === 1) {
+                        html += "<td></td>";
+                    }
+                    var checked = "";
+                    if ($.inArray(parseInt(route_list[i]['route_id']), route_id_arr) !== -1) {
+                        checked = 'checked';
+                    }
+                    html += '<td><input type="checkbox" lay-skin="primary" value="' + route_list[i]['route_id'] + '" ' + checked + ' lay-filter="select-route"></td>';
+                    html += "<td>" + route_list[i]['route_id'] + "</td>";
+                    html += "<td>" + route_list[i]['route_name'] + "</td>";
+                    html += "<td>" + route_list[i]['route_alias_name'] + "</td>";
+                    if (i % 2 === 1) {
+                        html += "</tr>";
+                    }
+                }
+                if (route_list.length % 2 === 1) {
+                    html += "</tr>";
+                }
+                $('.route-list-body').html(html);
+                layer.open({
+                    type: 1,
+                    title: '选择路由',
+                    shadeClose: true,
+                    area: ['80%', '80%'],
+                    content: $('.route-list').html(),
+                });
+                form.render();
+            });
+
+            form.on('checkbox(select-route)', function (data) {
+                var route_id = parseInt(data.value);
+                if (data.elem.checked) {
+                    add_route(route_id);
+                } else {
+                    del_route(route_id);
+                }
+            });
+
+
+            var route_id_arr = [];
+            var default_route_id = 0;
+
+            function add_route(route_id) {
+                route_id = parseInt(route_id);
+                if ($.inArray(route_id, route_id_arr) !== -1) {
+                    return true;
+                }
+                route_id_arr.push(route_id);
+                var route_info = route_list_new[route_id];
+                var html = "<tr class='route_id_" + route_id + "'>" +
+                    '<td><input type="radio" value="' + route_id + '" title="默认" name="default_route_filter" lay-filter="default_route_filter"></td>' +
+                    '<td>' + route_info['route_id'] + '</td>' +
+                    '<td>' + route_info['route_name'] + '</td>' +
+                    '<td>' + route_info['route_alias_name'] + '</td>' +
+                    '<td><button class="layui-btn layui-btn-normal layui-btn-sm" type="button" onclick="del_route(' + route_id + ')"><i class="layui-icon"></i></button></td>' +
+                    "</tr>";
+                $('.select-route-list-body').append(html);
+                form.render();
+            }
+
+            window.del_route = function (route_id) {
+                route_id = parseInt(route_id);
+                route_id_arr.splice($.inArray(route_id, route_id_arr), 1);
+                $('.route_id_' + route_id).remove();
+                form.render();
+                if (route_id === default_route_id) {
+                    default_route_id = 0;
+                }
+            };
+
+            form.on('radio(default_route_filter)', function (data) {
+                if (data.elem.checked) {
+                    default_route_id = parseInt(data.value);
+                } else {
+                    default_route_id = 0;
+                }
+            });
+
+            var pid = {{ pid }};
+            $('select[name="m_pid"]').find("option[value='" + pid + "']").attr("selected", true);
+            if (pid !== -1) {
+                $('.menu-type-block').hide();
+                $('.menu-permission-block').show();
+            }
+            form.render();
+        });
+    </script>
+{% endblock %}

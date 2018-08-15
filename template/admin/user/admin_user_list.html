@@ -1,0 +1,143 @@
+{% extends 'admin/admin_base.html' %}
+{% block extrastyle %}
+<style type="text/css">
+    .layui-table td {
+        padding: 3px 10px;
+    }
+
+    .sort-input {
+        height: 28px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="layui-card-body">
+    <div class="layui-tab" lay-filter="component-tabs-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this"><a href="{% url 'user_list' %}">后台用户列表</a></li>
+            <li><a href="{% url 'admin_user_add' %}">添加后台用户</a></li>
+        </ul>
+    </div>
+    <form class="layui-form layui-form-pane" action="" method="get">
+        <div class="layui-inline">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-inline">
+                <input type="text" name="id" value="" placeholder="请输入ID" class="layui-input"
+                       id="id">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">昵称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="nick_name" value="" placeholder="请输入昵称" class="layui-input"
+                       id="nick_name">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-inline">
+                <input type="text" name="phone" value="" placeholder="请输入电话" class="layui-input"
+                       id="phone">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                <select name="gender" lay-verify="required" id="gender">
+                    <option value="">全部</option>
+                    <option value="female">女</option>
+                    <option value="male">男</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn" type="button" id="tableIns">搜索</button>
+        </div>
+    </form>
+    <div>
+        <table id="dataList" lay-filter="test"></table>
+    </div>
+</div>
+{% endblock %}
+{% block extrajavascript %}
+<script>
+    var layer, $, tableIns;
+    layui.use(['table', 'jquery', 'layer'], function () {
+        var table = layui.table;
+        $ = layui.jquery;
+        layer = layui.layer;
+        var editUrl = "{% url 'admin_user_edit' %}";
+        var detailUrl = "{% url 'admin_user_detail' %}";
+        var changeUrl = "{% url 'admin_user_change_password' %}";
+        tableIns = table.render({
+            elem: '#dataList'
+            , url: '{% url "admin_user_list" %}'
+            , where: {
+                nick_name: $("input[name='nick_name']").val(),
+                phone: $("#phone").val(),
+                id: $("#id").val(),
+                gender: $("#gender").val()
+            }
+            , page: true //开启分页
+            , cols: [[ //表头
+                {width: 80, field: 'id', title: '用户ID'}
+                , {width: 120, field: 'username', title: '用户名'}
+                , {width: 120, field: 'nick_name', title: '昵称'}
+                , {width: 60, field: 'gender', title: '性别'}
+                , {width: 120, field: 'phone', title: '手机号码'}
+                , {width: 180, field: 'email', title: '邮箱'}
+                , {field: 'address', title: '地址'}
+                , {width: 100, field: 'is_superuser', title: '超级管理员'}
+                , {field: 'is_active', title: '状态'}
+                , {width: 180, field: 'last_login', title: '最后登录时间'}
+                , {
+                    width: 240, title: '操作', templet: function (d) {
+                        if (d.id == 1) {
+                            return '<a href="' + detailUrl + '?user_id=' + d.id + '" class="layui-btn layui-btn-primary layui-btn-xs">查看</a>' +
+                            '<a href="' + editUrl + '?user_id=' + d.id + '" class="layui-btn layui-btn-xs">编辑</a>' +
+                            '<a href="' + changeUrl + '?user_id=' + d.id + '" class="layui-btn layui-btn-xs">修改密码</a>'
+                        }
+                        return '<a href="' + detailUrl + '?user_id=' + d.id + '" class="layui-btn layui-btn-primary layui-btn-xs">查看</a>' +
+                            '<a href="' + editUrl + '?user_id=' + d.id + '" class="layui-btn layui-btn-xs">编辑</a>' +
+                            '<a href="' + changeUrl + '?user_id=' + d.id + '" class="layui-btn layui-btn-xs">修改密码</a>' +
+                            '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="user-del" data-value="' + d.id + '">删除</a>'
+                    }
+                }
+            ]]
+        });
+        $("#tableIns").click(function () {
+            tableIns.reload({
+                where: {
+                    nick_name: $("#nick_name").val(),
+                    phone: $("#phone").val(),
+                    id: $("#id").val(),
+                    gender: $("#gender").val()
+                }
+                , page: {
+                    page: 1
+                }
+            })
+        });
+
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'user-del') {
+                var user_id = $(this).attr('data-value');
+                layer.confirm('确认要删除该用户吗？', function () {
+                    $.post("{% url 'admin_user_delete' %}", {user_id: user_id}, function (result) {
+                        if (result.code === 1) {
+                            layer.alert(result.msg, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            layer.alert(result.msg)
+                        }
+                    });
+                });
+            }
+        });
+    });
+
+
+</script>
+{% endblock %}
